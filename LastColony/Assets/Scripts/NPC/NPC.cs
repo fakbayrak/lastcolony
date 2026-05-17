@@ -33,6 +33,7 @@ public class NPC : MonoBehaviour
     private void Awake()
     {
         gridManager = GridManager.Instance;
+        NPCManager.Instance.RegisterNPC(this);
     }
 
     private void Update()
@@ -43,6 +44,7 @@ public class NPC : MonoBehaviour
 
         if (health <= 0f)
         {
+            NPCManager.Instance.UnregisterNPC(this);
             OnDeath?.Invoke();
             Destroy(gameObject);
         }
