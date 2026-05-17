@@ -125,6 +125,11 @@ public class NPC : MonoBehaviour
             SetState(NPCState.Working);
     }
 
+    public void SetIdle()
+    {
+        state = NPCState.Idle;
+    }
+
     private void SetState(NPCState newState)
     {
         state = newState;

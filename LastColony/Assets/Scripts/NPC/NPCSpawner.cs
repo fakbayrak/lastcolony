@@ -26,12 +26,23 @@ public class NPCSpawner : MonoBehaviour
 
         StartCoroutine(AssignTaskDelayed());
         StartCoroutine(LogAllNPCStates());
+        StartCoroutine(TestResourceChain());
     }
 
     private IEnumerator AssignTaskDelayed()
     {
         yield return new WaitForSeconds(3f);
         NPCManager.Instance.AssignGatherTask(TaskType.GatherWood, new Vector2Int(15, 10), 3);
+    }
+
+    private IEnumerator TestResourceChain()
+    {
+        yield return new WaitForSeconds(5f);
+        ResourceManager.Instance.AddResource(ResourceType.Wood, 20);
+        bool result = ResourceChain.Instance.Process(ResourceType.Wood);
+        Debug.Log($"[Test] İşleme sonucu: {result} | " +
+                  $"Wood: {ResourceManager.Instance.GetResource(ResourceType.Wood)} | " +
+                  $"Lumber: {ResourceManager.Instance.GetResource(ResourceType.Lumber)}");
     }
 
     private IEnumerator LogAllNPCStates()

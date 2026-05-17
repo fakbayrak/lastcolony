@@ -3,17 +3,26 @@ using UnityEngine;
 
 public class ResourceHUD : MonoBehaviour
 {
+    [Header("Ham Maddeler")]
     [SerializeField] private TMP_Text woodText;
     [SerializeField] private TMP_Text stoneText;
+    [SerializeField] private TMP_Text metalOreText;
+
+    [Header("İşlenmiş Maddeler")]
+    [SerializeField] private TMP_Text lumberText;
+    [SerializeField] private TMP_Text processedStoneText;
     [SerializeField] private TMP_Text metalText;
 
     private void Start()
     {
         ResourceManager.Instance.OnResourceChanged += HandleResourceChanged;
 
-        UpdateText(ResourceType.Wood,  ResourceManager.Instance.GetResource(ResourceType.Wood));
-        UpdateText(ResourceType.Stone, ResourceManager.Instance.GetResource(ResourceType.Stone));
-        UpdateText(ResourceType.Metal, ResourceManager.Instance.GetResource(ResourceType.Metal));
+        UpdateText(ResourceType.Wood,          ResourceManager.Instance.GetResource(ResourceType.Wood));
+        UpdateText(ResourceType.Stone,         ResourceManager.Instance.GetResource(ResourceType.Stone));
+        UpdateText(ResourceType.MetalOre,      ResourceManager.Instance.GetResource(ResourceType.MetalOre));
+        UpdateText(ResourceType.Lumber,        ResourceManager.Instance.GetResource(ResourceType.Lumber));
+        UpdateText(ResourceType.ProcessedStone, ResourceManager.Instance.GetResource(ResourceType.ProcessedStone));
+        UpdateText(ResourceType.Metal,         ResourceManager.Instance.GetResource(ResourceType.Metal));
     }
 
     private void OnDestroy()
@@ -31,9 +40,12 @@ public class ResourceHUD : MonoBehaviour
     {
         switch (type)
         {
-            case ResourceType.Wood:  woodText.text  = $"Odun: {amount}";  break;
-            case ResourceType.Stone: stoneText.text = $"Taş: {amount}";   break;
-            case ResourceType.Metal: metalText.text = $"Metal: {amount}"; break;
+            case ResourceType.Wood:           if (woodText          != null) woodText.text          = $"Odun: {amount}";          break;
+            case ResourceType.Stone:          if (stoneText         != null) stoneText.text         = $"Taş: {amount}";            break;
+            case ResourceType.MetalOre:       if (metalOreText      != null) metalOreText.text      = $"Maden: {amount}";          break;
+            case ResourceType.Lumber:         if (lumberText        != null) lumberText.text        = $"Kereste: {amount}";        break;
+            case ResourceType.ProcessedStone: if (processedStoneText != null) processedStoneText.text = $"İşlenmiş Taş: {amount}"; break;
+            case ResourceType.Metal:          if (metalText         != null) metalText.text         = $"Metal: {amount}";          break;
         }
     }
 }

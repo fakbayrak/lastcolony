@@ -4,9 +4,10 @@ using UnityEngine;
 
 public enum ResourceType
 {
-    Wood,
-    Stone,
-    Metal
+    // Ham maddeler
+    Wood, Stone, MetalOre,
+    // İşlenmiş maddeler
+    Lumber, ProcessedStone, Metal
 }
 
 public class ResourceManager : MonoBehaviour
@@ -27,9 +28,12 @@ public class ResourceManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        inventory[ResourceType.Wood]  = 50;
-        inventory[ResourceType.Stone] = 30;
-        inventory[ResourceType.Metal] = 10;
+        inventory[ResourceType.Wood]          = 50;
+        inventory[ResourceType.Stone]         = 30;
+        inventory[ResourceType.MetalOre]      = 10;
+        inventory[ResourceType.Lumber]        = 0;
+        inventory[ResourceType.ProcessedStone] = 0;
+        inventory[ResourceType.Metal]         = 0;
     }
 
     public void AddResource(ResourceType type, int amount)
@@ -51,5 +55,10 @@ public class ResourceManager : MonoBehaviour
     public int GetResource(ResourceType type)
     {
         return inventory[type];
+    }
+
+    public bool HasEnough(ResourceType type, int amount)
+    {
+        return inventory[type] >= amount;
     }
 }
