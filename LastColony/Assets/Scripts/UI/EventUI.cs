@@ -31,6 +31,7 @@ public class EventUI : MonoBehaviour
     void ShowEvent(GameEvent gameEvent)
     {
         eventPanel.SetActive(true);
+        TimeController.Instance?.Pause();
         titleText.text = gameEvent.Title;
         descriptionText.text = gameEvent.Description;
 
@@ -52,18 +53,21 @@ public class EventUI : MonoBehaviour
 
     void OnChoiceAClicked()
     {
+        TimeController.Instance?.Resume();
         EventManager.Instance.ResolveChoiceA();
         eventPanel.SetActive(false);
     }
 
     void OnChoiceBClicked()
     {
+        TimeController.Instance?.Resume();
         EventManager.Instance.ResolveChoiceB();
         eventPanel.SetActive(false);
     }
 
     void OnConfirmClicked()
     {
+        TimeController.Instance?.Resume();
         EventManager.Instance.ResolveAuto();
         eventPanel.SetActive(false);
     }

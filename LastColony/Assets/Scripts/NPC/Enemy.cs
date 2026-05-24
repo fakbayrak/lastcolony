@@ -48,6 +48,8 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
+        if (TimeController.Instance != null && TimeController.Instance.IsPaused) return;
+
         switch (currentState)
         {
             case EnemyState.Moving:

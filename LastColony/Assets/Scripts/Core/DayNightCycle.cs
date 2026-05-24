@@ -11,12 +11,12 @@ public class DayNightCycle : MonoBehaviour
     public float CurrentDayProgress { get; private set; }
     public int CurrentDay { get; private set; } = 1;
     public bool IsNight => CurrentDayProgress >= 0.65f;
-    public bool isPaused = false;
 
     public static event Action<int> OnDayPassed;
     public static event Action OnNightBegin;
 
     bool nightEventFired;
+    bool isPaused;
 
     void Awake()
     {
@@ -28,6 +28,18 @@ public class DayNightCycle : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
     }
+
+    void OnEnable()
+    {
+        TimeController.OnPauseStateChanged += OnPauseChanged;
+    }
+
+    void OnDestroy()
+    {
+        TimeController.OnPauseStateChanged -= OnPauseChanged;
+    }
+
+    void OnPauseChanged(bool paused) => isPaused = paused;
 
     void Update()
     {

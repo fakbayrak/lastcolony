@@ -47,6 +47,8 @@ public class SpawnManager : MonoBehaviour
 
     void HandleDayPassed(int currentDay)
     {
+        if (TimeController.Instance != null && TimeController.Instance.IsPaused) return;
+
         if (currentDay >= nextAttackDay && !attackActive)
         {
             SpawnWave(currentDay);

@@ -38,6 +38,8 @@ public class NPC : MonoBehaviour
 
     private void Update()
     {
+        if (TimeController.Instance != null && TimeController.Instance.IsPaused) return;
+
         hunger = Mathf.Min(100f, hunger + HungerPerSecond * Time.deltaTime);
 
         UpdateStateMachine();
