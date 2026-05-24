@@ -125,6 +125,11 @@ public class NPC : MonoBehaviour
             SetState(NPCState.Working);
     }
 
+    public void TakeDamage(float amount)
+    {
+        health = Mathf.Max(0f, health - amount);
+    }
+
     public void SetIdle()
     {
         state = NPCState.Idle;
