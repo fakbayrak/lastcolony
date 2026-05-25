@@ -9,13 +9,20 @@ public class GridCell
 
 public class GridManager : MonoBehaviour
 {
+    public static GridManager Instance { get; private set; }
+
     public int width = 20;
     public int height = 20;
+
+    public int Width  => width;
+    public int Height => height;
 
     private GridCell[,] grid;
 
     void Awake()
     {
+        Instance = this;
+
         grid = new GridCell[width, height];
         for (int x = 0; x < width; x++)
             for (int y = 0; y < height; y++)
@@ -32,6 +39,11 @@ public class GridManager : MonoBehaviour
     public Vector3 GridToWorld(int x, int y)
     {
         return new Vector3(x + 0.5f, 0f, y + 0.5f);
+    }
+
+    public Vector3 GridToWorld(Vector2Int gridPos)
+    {
+        return GridToWorld(gridPos.x, gridPos.y);
     }
 
     public void OccupyCell(int x, int y, GameObject obj)
