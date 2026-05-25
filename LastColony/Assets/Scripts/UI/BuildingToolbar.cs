@@ -84,9 +84,9 @@ public class BuildingToolbar : MonoBehaviour
 
         var inventory = resourceManager.GetInventory();
         bool canAfford =
-            inventory.GetValueOrDefault("Lumber", 0)        >= data.costLumber &&
-            inventory.GetValueOrDefault("ProcessedStone", 0) >= data.costProcessedStone &&
-            inventory.GetValueOrDefault("Metal", 0)         >= data.costMetal;
+            (inventory.ContainsKey("Lumber")        ? inventory["Lumber"]        : 0) >= data.costLumber &&
+            (inventory.ContainsKey("ProcessedStone") ? inventory["ProcessedStone"] : 0) >= data.costProcessedStone &&
+            (inventory.ContainsKey("Metal")         ? inventory["Metal"]         : 0) >= data.costMetal;
 
         if (!canAfford)
         {
@@ -112,9 +112,9 @@ public class BuildingToolbar : MonoBehaviour
             BuildingData data = buildings[i];
 
             bool canAfford =
-                inventory.GetValueOrDefault("Lumber", 0)        >= data.costLumber &&
-                inventory.GetValueOrDefault("ProcessedStone", 0) >= data.costProcessedStone &&
-                inventory.GetValueOrDefault("Metal", 0)         >= data.costMetal;
+                (inventory.ContainsKey("Lumber")        ? inventory["Lumber"]        : 0) >= data.costLumber &&
+                (inventory.ContainsKey("ProcessedStone") ? inventory["ProcessedStone"] : 0) >= data.costProcessedStone &&
+                (inventory.ContainsKey("Metal")         ? inventory["Metal"]         : 0) >= data.costMetal;
 
             CanvasGroup cg = buttons[i].GetComponent<CanvasGroup>();
             if (cg != null)
