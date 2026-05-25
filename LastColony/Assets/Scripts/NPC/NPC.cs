@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum NPCState { Idle, Moving, Working, Resting }
+public enum NPCState { Idle, Moving, Working, Resting, Dead }
 
 public class NPC : MonoBehaviour
 {
@@ -44,12 +44,6 @@ public class NPC : MonoBehaviour
 
         UpdateStateMachine();
 
-        if (health <= 0f)
-        {
-            NPCManager.Instance.UnregisterNPC(this);
-            OnDeath?.Invoke();
-            Destroy(gameObject);
-        }
     }
 
     private void UpdateStateMachine()
@@ -129,7 +123,20 @@ public class NPC : MonoBehaviour
 
     public void TakeDamage(float amount)
     {
-        health = Mathf.Max(0f, health - amount);
+        health -= amount;
+        health = Mathf.Max(health, 0f);
+
+        if (health <= 0f)
+            Die();
+    }
+
+    void Die()
+    {
+        state = NPCState.Dead;
+        Debug.Log("[NPC] Bir kolonici hayatını kaybetti.");
+        NPCManager.Instance.UnregisterNPC(this);
+        OnDeath?.Invoke();
+        gameObject.SetActive(false);
     }
 
     public void SetIdle()
