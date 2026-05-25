@@ -34,9 +34,9 @@ public class BuildingPrefabCreator
 
     private static void CreateBuildingPrefab(string prefabName, string spritePath, Vector3 scale)
     {
-        Sprite sprite = AssetDatabase.LoadAssetAtPath<Sprite>(spritePath);
-        if (sprite == null)
-            Debug.LogWarning($"[BuildingPrefabCreator] Sprite bulunamadı: {spritePath}");
+        Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(spritePath);
+        if (texture == null)
+            Debug.LogWarning($"[BuildingPrefabCreator] Texture bulunamadı: {spritePath}");
 
         GameObject root = new GameObject(prefabName);
 
@@ -51,8 +51,8 @@ public class BuildingPrefabCreator
 
         Material mat = new Material(Shader.Find("Sprites/Default"));
         mat.color = Color.white;
-        if (sprite != null)
-            mat.mainTexture = sprite.texture;
+        if (texture != null)
+            mat.mainTexture = texture;
 
         if (!AssetDatabase.IsValidFolder("Assets/Materials"))
             AssetDatabase.CreateFolder("Assets", "Materials");
