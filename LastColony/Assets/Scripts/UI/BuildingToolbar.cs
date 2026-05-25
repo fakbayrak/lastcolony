@@ -35,8 +35,10 @@ public class BuildingToolbar : MonoBehaviour
 
             GameObject go = Instantiate(buttonPrefab, buttonContainer);
             go.name = $"Btn_{data.buildingName}";
+            Debug.Log($"[Toolbar] Buton oluşturuldu: {go.name}");
 
             Transform iconTransform = go.transform.Find("Icon");
+            Debug.Log($"[Toolbar] Icon bulundu: {iconTransform != null}");
             if (iconTransform != null && data.toolbarIcon != null)
             {
                 Image iconImage = iconTransform.GetComponent<Image>();
@@ -45,6 +47,7 @@ public class BuildingToolbar : MonoBehaviour
             }
 
             Transform nameTransform = go.transform.Find("NameText");
+            Debug.Log($"[Toolbar] NameText bulundu: {nameTransform != null}");
             if (nameTransform != null)
             {
                 TMP_Text nameText = nameTransform.GetComponent<TMP_Text>();
@@ -53,6 +56,7 @@ public class BuildingToolbar : MonoBehaviour
             }
 
             Transform costTransform = go.transform.Find("CostText");
+            Debug.Log($"[Toolbar] CostText bulundu: {costTransform != null}");
             if (costTransform != null)
             {
                 TMP_Text costText = costTransform.GetComponent<TMP_Text>();
