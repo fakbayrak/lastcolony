@@ -30,41 +30,25 @@ public class BuildingToolbar : MonoBehaviour
 
         for (int i = 0; i < buildings.Length; i++)
         {
-            int index = i;
             BuildingData data = buildings[i];
 
             GameObject go = Instantiate(buttonPrefab, buttonContainer);
-            go.name = $"Btn_{data.buildingName}";
+            go.name = $"Btn_{data.buildingNameTR}";
 
-            Image iconImage = null;
-            TMP_Text nameText = null;
-            TMP_Text costText = null;
+            Image[] images = go.GetComponentsInChildren<Image>(true);
+            if (images.Length > 1 && data.toolbarIcon != null)
+                images[1].sprite = data.toolbarIcon;
 
-            foreach (Image img in go.GetComponentsInChildren<Image>())
-            {
-                if (img.gameObject.name == "Icon")
-                    iconImage = img;
-            }
+            TMP_Text[] texts = go.GetComponentsInChildren<TMP_Text>(true);
+            if (texts.Length > 0) texts[0].text = data.buildingNameTR;
+            if (texts.Length > 1) texts[1].text = BuildCostText(data);
 
-            TMP_Text[] texts = go.GetComponentsInChildren<TMP_Text>();
-            foreach (TMP_Text t in texts)
-            {
-                if (t.gameObject.name == "NameText") nameText = t;
-                if (t.gameObject.name == "CostText") costText = t;
-            }
-
-            if (iconImage != null && data.toolbarIcon != null)
-                iconImage.sprite = data.toolbarIcon;
-
-            if (nameText != null)
-                nameText.text = data.buildingNameTR;
-
-            if (costText != null)
-                costText.text = BuildCostText(data);
+            Debug.Log($"[Toolbar] {data.buildingNameTR} — Image sayısı: {images.Length}, Text sayısı: {texts.Length}");
 
             Button btn = go.GetComponent<Button>();
             if (btn != null)
             {
+                int index = i;
                 btn.onClick.AddListener(() => OnBuildingButtonClicked(index));
                 buttons[i] = btn;
             }
@@ -86,9 +70,9 @@ public class BuildingToolbar : MonoBehaviour
 
         var inventory = resourceManager.GetInventory();
         bool canAfford =
-            (inventory.ContainsKey("Lumber")        ? inventory["Lumber"]        : 0) >= data.costLumber &&
-            (inventory.ContainsKey("ProcessedStone") ? inventory["ProcessedStone"] : 0) >= data.costProcessedStone &&
-            (inventory.ContainsKey("Metal")         ? inventory["Metal"]         : 0) >= data.costMetal;
+            (inventory.ContainsKey("Lumber")         ? inventory["Lumber"]         : 0) >= data.costLumber &&
+            (inventory.ContainsKey("ProcessedStone")  ? inventory["ProcessedStone"]  : 0) >= data.costProcessedStone &&
+            (inventory.ContainsKey("Metal")          ? inventory["Metal"]          : 0) >= data.costMetal;
 
         if (!canAfford)
         {
@@ -114,9 +98,9 @@ public class BuildingToolbar : MonoBehaviour
             BuildingData data = buildings[i];
 
             bool canAfford =
-                (inventory.ContainsKey("Lumber")        ? inventory["Lumber"]        : 0) >= data.costLumber &&
-                (inventory.ContainsKey("ProcessedStone") ? inventory["ProcessedStone"] : 0) >= data.costProcessedStone &&
-                (inventory.ContainsKey("Metal")         ? inventory["Metal"]         : 0) >= data.costMetal;
+                (inventory.ContainsKey("Lumber")         ? inventory["Lumber"]         : 0) >= data.costLumber &&
+                (inventory.ContainsKey("ProcessedStone")  ? inventory["ProcessedStone"]  : 0) >= data.costProcessedStone &&
+                (inventory.ContainsKey("Metal")          ? inventory["Metal"]          : 0) >= data.costMetal;
 
             CanvasGroup cg = buttons[i].GetComponent<CanvasGroup>();
             if (cg != null)
