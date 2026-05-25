@@ -78,4 +78,10 @@ public class ResourceManager : MonoBehaviour
             OnResourceChanged?.Invoke(type, amount);
         }
     }
+
+    public void RemoveResource(string key, int amount)
+    {
+        if (System.Enum.TryParse<ResourceType>(key, out ResourceType type))
+            RemoveResource(type, amount);
+    }
 }

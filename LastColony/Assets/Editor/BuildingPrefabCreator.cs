@@ -49,7 +49,7 @@ public class BuildingPrefabCreator
 
         Object.DestroyImmediate(quad.GetComponent<MeshCollider>());
 
-        Material mat = new Material(Shader.Find("Sprites/Default"));
+        Material mat = new Material(Shader.Find("Unlit/Transparent"));
         mat.color = Color.white;
         if (texture != null)
             mat.mainTexture = texture;

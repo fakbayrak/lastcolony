@@ -19,6 +19,11 @@ public class BuildingPlacement : MonoBehaviour
     private Camera mainCamera;
     private GameObject highlightQuad;
     private Material highlightMaterial;
+    [SerializeField] private ResourceManager resourceManager;
+    private GameObject currentPrefab;
+    private int costLumber;
+    private int costProcessedStone;
+    private int costMetal;
     private bool isPlacingBuilding;
     private List<PlacedBuildingRecord> placedBuildings = new List<PlacedBuildingRecord>();
     public List<PlacedBuildingRecord> GetPlacedBuildings() => placedBuildings;
@@ -96,8 +101,9 @@ public class BuildingPlacement : MonoBehaviour
         if (gridManager.IsCellOccupied(gridPos.x, gridPos.y)) return;
 
         Vector3 center = gridManager.GridToWorld(gridPos.x, gridPos.y);
-        GameObject building = buildingPrefab != null
-            ? Instantiate(buildingPrefab, center, Quaternion.identity)
+        GameObject activePrefab = currentPrefab ?? buildingPrefab;
+        GameObject building = activePrefab != null
+            ? Instantiate(activePrefab, center, Quaternion.identity)
             : CreateDefaultCube(center);
 
         gridManager.OccupyCell(gridPos.x, gridPos.y, building);
@@ -109,6 +115,13 @@ public class BuildingPlacement : MonoBehaviour
             buildingType = "Generic",
             tier = 1
         });
+
+        if (resourceManager != null)
+        {
+            resourceManager.RemoveResource("Lumber", costLumber);
+            resourceManager.RemoveResource("ProcessedStone", costProcessedStone);
+            resourceManager.RemoveResource("Metal", costMetal);
+        }
     }
 
     public void LoadBuildingRecord(PlacedBuildingRecord record)
@@ -122,6 +135,18 @@ public class BuildingPlacement : MonoBehaviour
         cube.transform.position = position;
         cube.transform.localScale = Vector3.one;
         return cube;
+    }
+
+    public void SetActivePrefab(GameObject prefab)
+    {
+        currentPrefab = prefab;
+    }
+
+    public void SetBuildingCost(int lumber, int processedStone, int metal)
+    {
+        costLumber = lumber;
+        costProcessedStone = processedStone;
+        costMetal = metal;
     }
 
     public void EnterPlacementMode()
