@@ -35,34 +35,32 @@ public class BuildingToolbar : MonoBehaviour
 
             GameObject go = Instantiate(buttonPrefab, buttonContainer);
             go.name = $"Btn_{data.buildingName}";
-            Debug.Log($"[Toolbar] Buton oluşturuldu: {go.name}");
 
-            Transform iconTransform = go.transform.Find("Icon");
-            Debug.Log($"[Toolbar] Icon bulundu: {iconTransform != null}");
-            if (iconTransform != null && data.toolbarIcon != null)
+            Image iconImage = null;
+            TMP_Text nameText = null;
+            TMP_Text costText = null;
+
+            foreach (Image img in go.GetComponentsInChildren<Image>())
             {
-                Image iconImage = iconTransform.GetComponent<Image>();
-                if (iconImage != null)
-                    iconImage.sprite = data.toolbarIcon;
+                if (img.gameObject.name == "Icon")
+                    iconImage = img;
             }
 
-            Transform nameTransform = go.transform.Find("NameText");
-            Debug.Log($"[Toolbar] NameText bulundu: {nameTransform != null}");
-            if (nameTransform != null)
+            TMP_Text[] texts = go.GetComponentsInChildren<TMP_Text>();
+            foreach (TMP_Text t in texts)
             {
-                TMP_Text nameText = nameTransform.GetComponent<TMP_Text>();
-                if (nameText != null)
-                    nameText.text = data.buildingNameTR;
+                if (t.gameObject.name == "NameText") nameText = t;
+                if (t.gameObject.name == "CostText") costText = t;
             }
 
-            Transform costTransform = go.transform.Find("CostText");
-            Debug.Log($"[Toolbar] CostText bulundu: {costTransform != null}");
-            if (costTransform != null)
-            {
-                TMP_Text costText = costTransform.GetComponent<TMP_Text>();
-                if (costText != null)
-                    costText.text = BuildCostText(data);
-            }
+            if (iconImage != null && data.toolbarIcon != null)
+                iconImage.sprite = data.toolbarIcon;
+
+            if (nameText != null)
+                nameText.text = data.buildingNameTR;
+
+            if (costText != null)
+                costText.text = BuildCostText(data);
 
             Button btn = go.GetComponent<Button>();
             if (btn != null)
