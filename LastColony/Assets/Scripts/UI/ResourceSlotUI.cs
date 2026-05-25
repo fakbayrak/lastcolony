@@ -15,7 +15,7 @@ public class ResourceSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
 
     public string ResourceKey => resourceKey;
 
-    public void Initialize(string key, string displayName, Color color, TooltipUI tooltipRef)
+    public void Initialize(string key, string displayName, Color color, Sprite icon, TooltipUI tooltipRef)
     {
         resourceKey = key;
         resourceDisplayName = displayName;
@@ -23,7 +23,17 @@ public class ResourceSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitH
         tooltip = tooltipRef;
 
         if (iconImage != null)
-            iconImage.color = iconColor;
+        {
+            if (icon != null)
+            {
+                iconImage.sprite = icon;
+                iconImage.color = Color.white;
+            }
+            else
+            {
+                iconImage.color = iconColor;
+            }
+        }
     }
 
     public void UpdateAmount(int amount)

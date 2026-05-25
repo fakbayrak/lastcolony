@@ -19,17 +19,15 @@ public class ResourceHUD : MonoBehaviour
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private TooltipUI tooltipUI;
 
-    private List<ResourceSlotUI> slots = new List<ResourceSlotUI>();
+    [Header("Kaynak İkonları")]
+    [SerializeField] private Sprite iconWood;
+    [SerializeField] private Sprite iconStone;
+    [SerializeField] private Sprite iconMetalOre;
+    [SerializeField] private Sprite iconLumber;
+    [SerializeField] private Sprite iconProcessedStone;
+    [SerializeField] private Sprite iconMetal;
 
-    private readonly (string key, string displayName, Color color)[] resourceDefs =
-    {
-        ("Wood",           "Odun — Ham kereste",          new Color(0.6f, 0.35f, 0.1f)),
-        ("Stone",          "Taş — Ham yapı malzemesi",    new Color(0.6f, 0.6f, 0.6f)),
-        ("MetalOre",       "Cevher — Ham metal",          new Color(0.4f, 0.7f, 0.4f)),
-        ("Lumber",         "Kereste — İşlenmiş odun",     new Color(0.85f, 0.55f, 0.2f)),
-        ("ProcessedStone", "İşlenmiş Taş",                new Color(0.8f, 0.8f, 0.9f)),
-        ("Metal",          "Metal — İşlenmiş cevher",     new Color(0.5f, 0.8f, 1.0f)),
-    };
+    private List<ResourceSlotUI> slots = new List<ResourceSlotUI>();
 
     private void Start()
     {
@@ -43,7 +41,17 @@ public class ResourceHUD : MonoBehaviour
     {
         if (slotContainer == null || slotPrefab == null) return;
 
-        foreach (var def in resourceDefs)
+        var defs = new (string key, string name, Color color, Sprite icon)[]
+        {
+            ("Wood",           "Odun — Ham kereste",         new Color(0.6f,  0.35f, 0.1f), iconWood),
+            ("Stone",          "Taş — Ham yapı malzemesi",   new Color(0.6f,  0.6f,  0.6f), iconStone),
+            ("MetalOre",       "Cevher — Ham metal",         new Color(0.4f,  0.7f,  0.4f), iconMetalOre),
+            ("Lumber",         "Kereste — İşlenmiş odun",    new Color(0.85f, 0.55f, 0.2f), iconLumber),
+            ("ProcessedStone", "İşlenmiş Taş",               new Color(0.8f,  0.8f,  0.9f), iconProcessedStone),
+            ("Metal",          "Metal — İşlenmiş cevher",    new Color(0.5f,  0.8f,  1.0f), iconMetal),
+        };
+
+        foreach (var def in defs)
         {
             GameObject go = Instantiate(slotPrefab, slotContainer);
             go.name = $"Slot_{def.key}";
@@ -51,7 +59,7 @@ public class ResourceHUD : MonoBehaviour
             ResourceSlotUI slot = go.GetComponent<ResourceSlotUI>();
             if (slot != null)
             {
-                slot.Initialize(def.key, def.displayName, def.color, tooltipUI);
+                slot.Initialize(def.key, def.name, def.color, def.icon, tooltipUI);
                 slots.Add(slot);
             }
         }
