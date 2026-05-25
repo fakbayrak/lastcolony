@@ -31,6 +31,15 @@ public class ResourceHUD : MonoBehaviour
         resourceManager = ResourceManager.Instance;
         resourceManager.OnResourceChanged += HandleResourceChanged;
 
+        SetupTextStyle(woodText,           "Odun: ");
+        SetupTextStyle(stoneText,          "Taş: ");
+        SetupTextStyle(metalOreText,       "Cevher: ");
+        SetupTextStyle(lumberText,         "Kereste: ");
+        SetupTextStyle(processedStoneText, "İşlenmiş Taş: ");
+        SetupTextStyle(metalText,          "Metal: ");
+        SetupTextStyle(dayText,            "");
+        SetupTextStyle(seasonText,         "");
+
         UpdateText(ResourceType.Wood,          resourceManager.GetResource(ResourceType.Wood));
         UpdateText(ResourceType.Stone,         resourceManager.GetResource(ResourceType.Stone));
         UpdateText(ResourceType.MetalOre,      resourceManager.GetResource(ResourceType.MetalOre));
@@ -54,7 +63,10 @@ public class ResourceHUD : MonoBehaviour
     private void UpdateDaySeasonDisplay()
     {
         if (dayNightCycle != null && dayText != null)
+        {
             dayText.text = $"Gün {dayNightCycle.CurrentDay}";
+            dayText.fontSize = 22;
+        }
 
         if (seasonManager != null && seasonText != null)
         {
@@ -67,6 +79,17 @@ public class ResourceHUD : MonoBehaviour
                 _ => "?"
             };
             seasonText.text = seasonName;
+            seasonText.fontSize = 20;
+
+            Color seasonColor = seasonManager.CurrentSeason switch
+            {
+                SeasonManager.Season.Summer => new Color(1f, 0.9f, 0.3f),
+                SeasonManager.Season.Autumn => new Color(1f, 0.5f, 0.1f),
+                SeasonManager.Season.Winter => new Color(0.7f, 0.9f, 1f),
+                SeasonManager.Season.Spring => new Color(0.5f, 1f, 0.5f),
+                _ => Color.white
+            };
+            seasonText.color = seasonColor;
         }
     }
 
@@ -98,12 +121,21 @@ public class ResourceHUD : MonoBehaviour
     {
         switch (type)
         {
-            case ResourceType.Wood:           if (woodText          != null) woodText.text          = $"Odun: {amount}";          break;
-            case ResourceType.Stone:          if (stoneText         != null) stoneText.text         = $"Taş: {amount}";            break;
-            case ResourceType.MetalOre:       if (metalOreText      != null) metalOreText.text      = $"Maden: {amount}";          break;
-            case ResourceType.Lumber:         if (lumberText        != null) lumberText.text        = $"Kereste: {amount}";        break;
+            case ResourceType.Wood:           if (woodText           != null) woodText.text           = $"Odun:          {amount}"; break;
+            case ResourceType.Stone:          if (stoneText          != null) stoneText.text          = $"Taş:           {amount}"; break;
+            case ResourceType.MetalOre:       if (metalOreText       != null) metalOreText.text       = $"Cevher:        {amount}"; break;
+            case ResourceType.Lumber:         if (lumberText         != null) lumberText.text         = $"Kereste:       {amount}"; break;
             case ResourceType.ProcessedStone: if (processedStoneText != null) processedStoneText.text = $"İşlenmiş Taş: {amount}"; break;
-            case ResourceType.Metal:          if (metalText         != null) metalText.text         = $"Metal: {amount}";          break;
+            case ResourceType.Metal:          if (metalText          != null) metalText.text          = $"Metal:         {amount}"; break;
         }
+    }
+
+    private void SetupTextStyle(TMP_Text t, string label)
+    {
+        if (t == null) return;
+        t.fontSize = 18;
+        t.color = Color.white;
+        t.outlineWidth = 0.2f;
+        t.outlineColor = new Color32(0, 0, 0, 200);
     }
 }
