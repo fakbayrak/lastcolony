@@ -61,4 +61,21 @@ public class ResourceManager : MonoBehaviour
     {
         return inventory[type] >= amount;
     }
+
+    public Dictionary<string, int> GetInventory()
+    {
+        var result = new Dictionary<string, int>();
+        foreach (var kvp in inventory)
+            result[kvp.Key.ToString()] = kvp.Value;
+        return result;
+    }
+
+    public void SetResource(string key, int amount)
+    {
+        if (System.Enum.TryParse<ResourceType>(key, out ResourceType type))
+        {
+            inventory[type] = amount;
+            OnResourceChanged?.Invoke(type, amount);
+        }
+    }
 }

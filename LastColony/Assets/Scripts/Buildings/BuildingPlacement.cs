@@ -1,5 +1,15 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+[System.Serializable]
+public class PlacedBuildingRecord
+{
+    public int gridX;
+    public int gridY;
+    public string buildingType;
+    public int tier;
+}
 
 public class BuildingPlacement : MonoBehaviour
 {
@@ -10,6 +20,8 @@ public class BuildingPlacement : MonoBehaviour
     private GameObject highlightQuad;
     private Material highlightMaterial;
     private bool isPlacingBuilding;
+    private List<PlacedBuildingRecord> placedBuildings = new List<PlacedBuildingRecord>();
+    public List<PlacedBuildingRecord> GetPlacedBuildings() => placedBuildings;
 
     private static readonly Color colorValid   = new Color(0f, 1f, 0f, 0.4f);
     private static readonly Color colorInvalid = new Color(1f, 0f, 0f, 0.4f);
@@ -89,6 +101,19 @@ public class BuildingPlacement : MonoBehaviour
             : CreateDefaultCube(center);
 
         gridManager.OccupyCell(gridPos.x, gridPos.y, building);
+
+        placedBuildings.Add(new PlacedBuildingRecord
+        {
+            gridX = gridPos.x,
+            gridY = gridPos.y,
+            buildingType = "Generic",
+            tier = 1
+        });
+    }
+
+    public void LoadBuildingRecord(PlacedBuildingRecord record)
+    {
+        placedBuildings.Add(record);
     }
 
     GameObject CreateDefaultCube(Vector3 position)

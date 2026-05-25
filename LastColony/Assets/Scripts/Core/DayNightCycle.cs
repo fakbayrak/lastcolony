@@ -88,6 +88,11 @@ public class DayNightCycle : MonoBehaviour
         }
     }
 
+    public void SetDay(int day)
+    {
+        CurrentDay = day;
+    }
+
     void CheckNightBegin()
     {
         if (!nightEventFired && CurrentDayProgress >= 0.65f)
