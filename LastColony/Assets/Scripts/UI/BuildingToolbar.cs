@@ -35,15 +35,36 @@ public class BuildingToolbar : MonoBehaviour
             GameObject go = Instantiate(buttonPrefab, buttonContainer);
             go.name = $"Btn_{data.buildingNameTR}";
 
+            // Tüm Image'ları logla
             Image[] images = go.GetComponentsInChildren<Image>(true);
-            if (images.Length > 1 && data.toolbarIcon != null)
-                images[1].sprite = data.toolbarIcon;
+            for (int j = 0; j < images.Length; j++)
+                Debug.Log($"[Toolbar] Image[{j}] = {images[j].gameObject.name}");
+
+            // İsme göre bul
+            Image iconImage = null;
+            foreach (Image img in images)
+            {
+                if (img.gameObject.name == "Icon")
+                {
+                    iconImage = img;
+                    break;
+                }
+            }
+
+            if (iconImage != null && data.toolbarIcon != null)
+            {
+                iconImage.sprite = data.toolbarIcon;
+                iconImage.color = Color.white;
+                Debug.Log($"[Toolbar] {data.buildingNameTR} ikonu atandı.");
+            }
+            else
+            {
+                Debug.LogWarning($"[Toolbar] {data.buildingNameTR} — iconImage:{iconImage != null}, toolbarIcon:{data.toolbarIcon != null}");
+            }
 
             TMP_Text[] texts = go.GetComponentsInChildren<TMP_Text>(true);
             if (texts.Length > 0) texts[0].text = data.buildingNameTR;
             if (texts.Length > 1) texts[1].text = BuildCostText(data);
-
-            Debug.Log($"[Toolbar] {data.buildingNameTR} — Image sayısı: {images.Length}, Text sayısı: {texts.Length}");
 
             Button btn = go.GetComponent<Button>();
             if (btn != null)
