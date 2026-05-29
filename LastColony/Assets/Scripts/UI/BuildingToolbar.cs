@@ -44,7 +44,7 @@ public class BuildingToolbar : MonoBehaviour
             Image iconImage = null;
             foreach (Image img in images)
             {
-                if (img.gameObject.name == "Icon")
+                if (img.gameObject.name.Trim().ToLower() == "icon")
                 {
                     iconImage = img;
                     break;
