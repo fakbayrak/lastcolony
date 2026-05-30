@@ -10,24 +10,48 @@ public class ResourceNode : MonoBehaviour
 
     public ResourceType ResourceType => resourceType;
 
+    public bool IsGathering { get; private set; }
+
     public bool IsAvailable() => totalAmount > 0;
 
+    // NPC bu node'a varıp Working state'e geçince çağrılır.
+    // Coroutine NPC'de değil node'da çalışır; böylece NPC ölse bile IsGathering takılı kalmaz.
     public void Gather(NPC npc)
     {
-        StartCoroutine(GatherCoroutine(npc));
+        if (IsGathering)
+            return;
+        StartCoroutine(GatherRoutine(npc));
     }
 
-    private IEnumerator GatherCoroutine(NPC npc)
+    private IEnumerator GatherRoutine(NPC npc)
     {
-        yield return new WaitForSeconds(gatherDuration);
+        IsGathering = true;
 
-        int gathered = Mathf.Min(gatherAmountPerTrip, totalAmount);
-        ResourceManager.Instance.AddResource(resourceType, gathered);
-        totalAmount -= gathered;
+        // NPC bu node'da çalışmaya devam ettiği sürece periyodik olarak topla
+        while (totalAmount > 0 && npc != null && npc.Health > 0 && npc.CurrentState == NPCState.Working)
+        {
+            yield return new WaitForSeconds(gatherDuration);
 
-        npc.SetIdle();
+            if (npc == null || npc.Health <= 0 || npc.CurrentState != NPCState.Working)
+                break;
 
-        if (totalAmount <= 0)
-            Destroy(gameObject);
+            int amount = Mathf.Min(gatherAmountPerTrip, totalAmount);
+            totalAmount -= amount;
+
+            ResourceManager.Instance.AddResource(resourceType, amount);
+            Debug.Log($"[ResourceNode] {npc.name} topladı: {amount}x {resourceType} (kalan: {totalAmount})");
+
+            if (totalAmount <= 0)
+            {
+                Debug.Log($"[ResourceNode] {resourceType} tükendi.");
+                if (npc != null && npc.Health > 0)
+                    npc.SetIdle();
+                IsGathering = false;
+                Destroy(gameObject);
+                yield break;
+            }
+        }
+
+        IsGathering = false;
     }
 }

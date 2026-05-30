@@ -21,6 +21,7 @@ public class NPC : MonoBehaviour
     private NPCState state = NPCState.Idle;
     private GridManager gridManager;
     private Coroutine moveCoroutine;
+    private ResourceNode currentResourceNode;
 
     private const float HungerPerSecond      = 0.5f;
     private const float EnergyDrainPerSecond  = 10f;
@@ -79,6 +80,13 @@ public class NPC : MonoBehaviour
     }
 
     public void MoveTo(Vector2Int targetGrid)
+    {
+        // Doğrudan hareket (genel görev) — kaynak toplama hedefi yok
+        currentResourceNode = null;
+        MoveToInternal(targetGrid);
+    }
+
+    private void MoveToInternal(Vector2Int targetGrid)
     {
         if (state == NPCState.Resting || hunger >= HungerWorkBlock)
             return;
@@ -144,16 +152,37 @@ public class NPC : MonoBehaviour
         state = NPCState.Idle;
     }
 
-    public void SetGatherTarget(Vector3 targetPos, string resourceType)
+    public void SetGatherTarget(ResourceNode node)
     {
+        if (node == null)
+            return;
+
+        // Toplanacak node'u sakla; hedefe varıp Working state'e geçince gather tetiklenir
+        currentResourceNode = node;
+
         // Dünya konumunu grid hücresine çevir ve mevcut pathfinding + state machine ile git
-        Vector2Int targetGrid = gridManager.WorldToGrid(targetPos);
-        Debug.Log($"[NPC] {name} → {resourceType} hedefine yönlendiriliyor ({targetGrid})");
-        MoveTo(targetGrid);
+        Vector2Int targetGrid = gridManager.WorldToGrid(node.transform.position);
+        Debug.Log($"[NPC] {name} → {node.ResourceType} hedefine yönlendiriliyor ({targetGrid})");
+        MoveToInternal(targetGrid);
     }
 
     private void SetState(NPCState newState)
     {
         state = newState;
+
+        // Hedefe varıp çalışmaya başlayınca kaynak toplamayı tetikle
+        if (newState == NPCState.Working)
+            TryStartGathering();
+    }
+
+    private void TryStartGathering()
+    {
+        // Yalnızca bir kaynak hedefi atanmışsa topla (genel görevlerde currentResourceNode null'dur)
+        if (currentResourceNode == null || !currentResourceNode.IsAvailable())
+            return;
+        if (currentResourceNode.IsGathering)
+            return;
+
+        currentResourceNode.Gather(this);
     }
 }

@@ -75,7 +75,7 @@ public class NPCManager : MonoBehaviour
 
         if (target != null)
         {
-            npc.SetGatherTarget(target.transform.position, resourceKey);
+            npc.SetGatherTarget(target);
             Debug.Log($"[NPCManager] {npc.name} → {resourceKey} görevine atandı");
         }
         else
