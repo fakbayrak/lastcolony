@@ -21,7 +21,7 @@ public class NPCTaskPanelCreator
         panelRect.anchorMax = new Vector2(1, 0.5f);
         panelRect.pivot = new Vector2(1, 0.5f);
         panelRect.anchoredPosition = new Vector2(0, -100);
-        panelRect.sizeDelta = new Vector2(220, 420);
+        panelRect.sizeDelta = new Vector2(220, 520);
 
         Image panelImg = panel.AddComponent<Image>();
         panelImg.color = new Color(0.12f, 0.18f, 0.24f, 0.95f);
@@ -33,8 +33,9 @@ public class NPCTaskPanelCreator
         vlg.childForceExpandHeight = false;
         vlg.childAlignment = TextAnchor.UpperCenter;
 
-        ContentSizeFitter csf = panel.AddComponent<ContentSizeFitter>();
-        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        // ContentSizeFitter kaldırıldı — sabit yükseklik kullanılıyor (sizeDelta.y = 520)
+        // ContentSizeFitter csf = panel.AddComponent<ContentSizeFitter>();
+        // csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
         // Başlık
         CreateLabel(panel.transform, "NPCPanelTitle", "NPC YÖNETİMİ", 16, Color.white, 30, true);
@@ -53,14 +54,18 @@ public class NPCTaskPanelCreator
         // Uygula butonu
         GameObject applyBtn = CreateButton(panel.transform, "ApplyButton", "UYGULA", 16);
         LayoutElement applyLE = applyBtn.AddComponent<LayoutElement>();
-        applyLE.preferredHeight = 45;
+        applyLE.preferredHeight = 50;
         applyBtn.GetComponent<Image>().color = new Color(0.15f, 0.55f, 0.25f, 1f);
 
-        // Toggle butonu — panelin dışında, sol kenarında
-        GameObject toggleBtn = CreateButton(panel.transform, "ToggleButton", "KAPAT", 14);
-        LayoutElement toggleLE = toggleBtn.AddComponent<LayoutElement>();
-        toggleLE.preferredHeight = 30;
-        toggleBtn.GetComponent<Image>().color = new Color(0.3f, 0.3f, 0.4f, 1f);
+        // Toggle butonu — panelin dışında, sol üst köşesinde küçük bir buton
+        GameObject toggleBtn = CreateButton(canvas.transform, "ToggleButton", "<", 14);
+        RectTransform toggleRect = toggleBtn.GetComponent<RectTransform>();
+        toggleRect.anchorMin = new Vector2(1, 1);
+        toggleRect.anchorMax = new Vector2(1, 1);
+        toggleRect.pivot = new Vector2(1, 1);
+        toggleRect.anchoredPosition = new Vector2(-220, -100);
+        toggleRect.sizeDelta = new Vector2(30, 30);
+        toggleBtn.GetComponent<Image>().color = new Color(0.2f, 0.3f, 0.4f, 1f);
 
         // === NPCTaskUI component'ini ekle ve referansları otomatik bağla ===
         NPCTaskUI npcTaskUI = panel.AddComponent<NPCTaskUI>();
@@ -84,7 +89,7 @@ public class NPCTaskPanelCreator
         so.FindProperty("metalCountText").objectReferenceValue = FindText(panel.transform, "MetalCountText");
         so.FindProperty("restCountText").objectReferenceValue  = FindText(panel.transform, "RestCountText");
         so.FindProperty("applyButton").objectReferenceValue    = FindButton(panel.transform, "ApplyButton");
-        so.FindProperty("toggleButton").objectReferenceValue   = FindButton(panel.transform, "ToggleButton");
+        so.FindProperty("toggleButton").objectReferenceValue   = toggleBtn.GetComponent<Button>();
         so.ApplyModifiedProperties();
 
         // === Spinner butonlarının onClick olaylarını bağla ===
@@ -153,7 +158,7 @@ public class NPCTaskPanelCreator
         hlg.childAlignment = TextAnchor.MiddleCenter;
 
         LayoutElement rowLE = row.AddComponent<LayoutElement>();
-        rowLE.preferredHeight = 38;
+        rowLE.preferredHeight = 45;
 
         // Label
         GameObject lbl = CreateUIObject($"{key}Label", row.transform);
