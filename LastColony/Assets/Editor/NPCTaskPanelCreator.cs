@@ -1,5 +1,7 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEditor;
+using UnityEditor.Events;
 using UnityEngine.UI;
 using TMPro;
 
@@ -60,8 +62,85 @@ public class NPCTaskPanelCreator
         toggleLE.preferredHeight = 30;
         toggleBtn.GetComponent<Image>().color = new Color(0.2f, 0.3f, 0.4f, 1f);
 
-        Debug.Log("[NPCTaskPanelCreator] Panel oluşturuldu.");
+        // === NPCTaskUI component'ini ekle ve referansları otomatik bağla ===
+        NPCTaskUI npcTaskUI = panel.AddComponent<NPCTaskUI>();
+
+        NPCManager npcManager = Object.FindFirstObjectByType<NPCManager>();
+        TaskManager taskManager = Object.FindFirstObjectByType<TaskManager>();
+        if (npcManager == null)
+            Debug.LogWarning("[NPCTaskPanelCreator] Sahnede NPCManager bulunamadı; referans boş bırakıldı.");
+        if (taskManager == null)
+            Debug.LogWarning("[NPCTaskPanelCreator] Sahnede TaskManager bulunamadı; referans boş bırakıldı.");
+
+        // Private [SerializeField] alanlar SerializedObject ile atanır
+        SerializedObject so = new SerializedObject(npcTaskUI);
+        so.FindProperty("npcManager").objectReferenceValue     = npcManager;
+        so.FindProperty("taskManager").objectReferenceValue    = taskManager;
+        so.FindProperty("panelRoot").objectReferenceValue      = panel;
+        so.FindProperty("totalNPCText").objectReferenceValue   = FindText(panel.transform, "TotalNPCText");
+        so.FindProperty("assignedText").objectReferenceValue   = FindText(panel.transform, "AssignedText");
+        so.FindProperty("woodCountText").objectReferenceValue  = FindText(panel.transform, "WoodCountText");
+        so.FindProperty("stoneCountText").objectReferenceValue = FindText(panel.transform, "StoneCountText");
+        so.FindProperty("metalCountText").objectReferenceValue = FindText(panel.transform, "MetalCountText");
+        so.FindProperty("restCountText").objectReferenceValue  = FindText(panel.transform, "RestCountText");
+        so.FindProperty("applyButton").objectReferenceValue    = FindButton(panel.transform, "ApplyButton");
+        so.FindProperty("toggleButton").objectReferenceValue   = FindButton(panel.transform, "ToggleButton");
+        so.ApplyModifiedProperties();
+
+        // === Spinner butonlarının onClick olaylarını bağla ===
+        BindClick(panel.transform, "WoodAdd",  npcTaskUI.AddWood);
+        BindClick(panel.transform, "WoodSub",  npcTaskUI.SubWood);
+        BindClick(panel.transform, "StoneAdd", npcTaskUI.AddStone);
+        BindClick(panel.transform, "StoneSub", npcTaskUI.SubStone);
+        BindClick(panel.transform, "MetalAdd", npcTaskUI.AddMetal);
+        BindClick(panel.transform, "MetalSub", npcTaskUI.SubMetal);
+        BindClick(panel.transform, "RestAdd",  npcTaskUI.AddRest);
+        BindClick(panel.transform, "RestSub",  npcTaskUI.SubRest);
+
+        EditorUtility.SetDirty(npcTaskUI);
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
+            UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
+
+        Debug.Log("[NPCTaskPanelCreator] Panel oluşturuldu ve referanslar bağlandı.");
         Selection.activeGameObject = panel;
+    }
+
+    private static TMP_Text FindText(Transform root, string name)
+    {
+        GameObject go = FindChild(root, name);
+        return go != null ? go.GetComponent<TMP_Text>() : null;
+    }
+
+    private static Button FindButton(Transform root, string name)
+    {
+        GameObject go = FindChild(root, name);
+        return go != null ? go.GetComponent<Button>() : null;
+    }
+
+    private static void BindClick(Transform root, string buttonName, UnityAction action)
+    {
+        GameObject go = FindChild(root, buttonName);
+        if (go == null)
+        {
+            Debug.LogWarning($"[NPCTaskPanelCreator] Buton bulunamadı: {buttonName}");
+            return;
+        }
+        Button btn = go.GetComponent<Button>();
+        if (btn == null)
+        {
+            Debug.LogWarning($"[NPCTaskPanelCreator] '{buttonName}' üzerinde Button component yok.");
+            return;
+        }
+        UnityEventTools.AddPersistentListener(btn.onClick, action);
+    }
+
+    // Parent dahil tüm alt objelerde (inaktif olanlar dahil) isme göre arama
+    private static GameObject FindChild(Transform root, string name)
+    {
+        foreach (Transform t in root.GetComponentsInChildren<Transform>(true))
+            if (t.name == name)
+                return t.gameObject;
+        return null;
     }
 
     private static void CreateResourceRow(Transform parent, string key, string label)
