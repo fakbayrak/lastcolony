@@ -21,7 +21,7 @@ public class NPCTaskPanelCreator
         panelRect.anchorMax = new Vector2(1, 1);
         panelRect.pivot = new Vector2(1, 1);
         panelRect.anchoredPosition = new Vector2(0, -170);
-        panelRect.sizeDelta = new Vector2(220, 580);
+        panelRect.sizeDelta = new Vector2(260, 580);
 
         Image panelImg = panel.AddComponent<Image>();
         panelImg.color = new Color(0.12f, 0.18f, 0.24f, 0.95f);
@@ -63,7 +63,7 @@ public class NPCTaskPanelCreator
         toggleRect.anchorMin = new Vector2(1, 1);
         toggleRect.anchorMax = new Vector2(1, 1);
         toggleRect.pivot = new Vector2(1, 1);
-        toggleRect.anchoredPosition = new Vector2(-220, -100);
+        toggleRect.anchoredPosition = new Vector2(-260, -170);
         toggleRect.sizeDelta = new Vector2(30, 30);
         toggleBtn.GetComponent<Image>().color = new Color(0.2f, 0.3f, 0.4f, 1f);
 
@@ -170,7 +170,8 @@ public class NPCTaskPanelCreator
         lblText.color = Color.white;
         lblText.alignment = TextAlignmentOptions.MidlineLeft;
         LayoutElement lblLE = lbl.AddComponent<LayoutElement>();
-        lblLE.preferredWidth = 80;
+        lblLE.preferredWidth = 110;
+        lblLE.minWidth = 110;
         lblLE.flexibleWidth = 0;
 
         // Sub button
