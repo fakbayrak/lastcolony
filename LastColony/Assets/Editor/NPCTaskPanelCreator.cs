@@ -22,7 +22,7 @@ public class NPCTaskPanelCreator
         panelRect.anchorMax = new Vector2(1, 1);
         panelRect.pivot = new Vector2(1, 0.5f);
         panelRect.anchoredPosition = new Vector2(0, 0);
-        panelRect.sizeDelta = new Vector2(200, 0); // height 0 = stretch
+        panelRect.sizeDelta = new Vector2(240, 0); // height 0 = stretch
 
         Image panelImg = panel.AddComponent<Image>();
         panelImg.color = new Color(0.12f, 0.18f, 0.24f, 0.95f);
@@ -38,8 +38,6 @@ public class NPCTaskPanelCreator
         // ContentSizeFitter csf = panel.AddComponent<ContentSizeFitter>();
         // csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        // Başlık
-        CreateLabel(panel.transform, "NPCPanelTitle", "NPC YÖNETİMİ", 16, Color.white, 30, true);
         CreateLabel(panel.transform, "TotalNPCText", "NPC: 0", 14, Color.white, 25);
         CreateLabel(panel.transform, "AssignedText", "Atanan: 0/0", 13, Color.yellow, 25);
         CreateDivider(panel.transform);
@@ -147,28 +145,34 @@ public class NPCTaskPanelCreator
         HorizontalLayoutGroup hlg = row.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = 5;
         hlg.childForceExpandWidth = false;
-        hlg.childForceExpandHeight = true;
-        hlg.childControlWidth = true;
-        hlg.childControlHeight = true;
+        hlg.childForceExpandHeight = false;
+        hlg.childControlWidth = false;
+        hlg.childControlHeight = false;
         hlg.childAlignment = TextAnchor.MiddleCenter;
 
         LayoutElement rowLE = row.AddComponent<LayoutElement>();
         rowLE.preferredHeight = 32;
 
+        // childControlWidth=false olduğu için boyutlar RectTransform'dan okunur;
+        // LayoutElement değerleri etkisiz kalmasın diye sizeDelta'yı da set ediyoruz.
+        const float rowH = 28f;
+
         // Label
         GameObject lbl = CreateUIObject($"{key}Label", row.transform);
+        lbl.GetComponent<RectTransform>().sizeDelta = new Vector2(70, rowH);
         TMP_Text lblText = lbl.AddComponent<TextMeshProUGUI>();
         lblText.text = label;
         lblText.fontSize = 13;
         lblText.color = Color.white;
         lblText.alignment = TextAlignmentOptions.MidlineLeft;
         LayoutElement lblLE = lbl.AddComponent<LayoutElement>();
-        lblLE.preferredWidth = 80;
-        lblLE.minWidth = 80;
+        lblLE.preferredWidth = 70;
+        lblLE.minWidth = 70;
         lblLE.flexibleWidth = 0;
 
         // Sub button
         GameObject sub = CreateButton(row.transform, $"{key}Sub", "−", 13);
+        sub.GetComponent<RectTransform>().sizeDelta = new Vector2(28, rowH);
         LayoutElement subLE = sub.AddComponent<LayoutElement>();
         subLE.preferredWidth = 28;
         subLE.minWidth = 28;
@@ -176,6 +180,7 @@ public class NPCTaskPanelCreator
 
         // Count text
         GameObject count = CreateUIObject($"{key}CountText", row.transform);
+        count.GetComponent<RectTransform>().sizeDelta = new Vector2(30, rowH);
         TMP_Text countText = count.AddComponent<TextMeshProUGUI>();
         countText.text = "0";
         countText.fontSize = 16;
@@ -187,6 +192,7 @@ public class NPCTaskPanelCreator
 
         // Add button
         GameObject add = CreateButton(row.transform, $"{key}Add", "+", 13);
+        add.GetComponent<RectTransform>().sizeDelta = new Vector2(28, rowH);
         LayoutElement addLE = add.AddComponent<LayoutElement>();
         addLE.preferredWidth = 28;
         addLE.minWidth = 28;
