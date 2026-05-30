@@ -17,11 +17,11 @@ public class NPCTaskPanelCreator
         // Ana panel
         GameObject panel = CreateUIObject("NPCTaskPanel", canvas.transform);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
-        panelRect.anchorMin = new Vector2(1, 0.5f);
-        panelRect.anchorMax = new Vector2(1, 0.5f);
-        panelRect.pivot = new Vector2(1, 0.5f);
-        panelRect.anchoredPosition = new Vector2(0, -100);
-        panelRect.sizeDelta = new Vector2(220, 520);
+        panelRect.anchorMin = new Vector2(1, 1);
+        panelRect.anchorMax = new Vector2(1, 1);
+        panelRect.pivot = new Vector2(1, 1);
+        panelRect.anchoredPosition = new Vector2(0, -170);
+        panelRect.sizeDelta = new Vector2(220, 580);
 
         Image panelImg = panel.AddComponent<Image>();
         panelImg.color = new Color(0.12f, 0.18f, 0.24f, 0.95f);
@@ -155,6 +155,8 @@ public class NPCTaskPanelCreator
         hlg.spacing = 5;
         hlg.childForceExpandWidth = false;
         hlg.childForceExpandHeight = true;
+        hlg.childControlWidth = true;
+        hlg.childControlHeight = true;
         hlg.childAlignment = TextAnchor.MiddleCenter;
 
         LayoutElement rowLE = row.AddComponent<LayoutElement>();
@@ -168,12 +170,14 @@ public class NPCTaskPanelCreator
         lblText.color = Color.white;
         lblText.alignment = TextAlignmentOptions.MidlineLeft;
         LayoutElement lblLE = lbl.AddComponent<LayoutElement>();
-        lblLE.flexibleWidth = 1;
+        lblLE.preferredWidth = 80;
+        lblLE.flexibleWidth = 0;
 
         // Sub button
         GameObject sub = CreateButton(row.transform, $"{key}Sub", "−", 18);
         LayoutElement subLE = sub.AddComponent<LayoutElement>();
-        subLE.preferredWidth = 32;
+        subLE.preferredWidth = 36;
+        subLE.minWidth = 36;
         sub.GetComponent<Image>().color = new Color(0.6f, 0.2f, 0.2f, 1f);
 
         // Count text
@@ -184,12 +188,14 @@ public class NPCTaskPanelCreator
         countText.color = Color.white;
         countText.alignment = TextAlignmentOptions.Center;
         LayoutElement countLE = count.AddComponent<LayoutElement>();
-        countLE.preferredWidth = 35;
+        countLE.preferredWidth = 40;
+        countLE.minWidth = 40;
 
         // Add button
         GameObject add = CreateButton(row.transform, $"{key}Add", "+", 18);
         LayoutElement addLE = add.AddComponent<LayoutElement>();
-        addLE.preferredWidth = 32;
+        addLE.preferredWidth = 36;
+        addLE.minWidth = 36;
         add.GetComponent<Image>().color = new Color(0.2f, 0.5f, 0.2f, 1f);
     }
 
