@@ -144,6 +144,14 @@ public class NPC : MonoBehaviour
         state = NPCState.Idle;
     }
 
+    public void SetGatherTarget(Vector3 targetPos, string resourceType)
+    {
+        // Dünya konumunu grid hücresine çevir ve mevcut pathfinding + state machine ile git
+        Vector2Int targetGrid = gridManager.WorldToGrid(targetPos);
+        Debug.Log($"[NPC] {name} → {resourceType} hedefine yönlendiriliyor ({targetGrid})");
+        MoveTo(targetGrid);
+    }
+
     private void SetState(NPCState newState)
     {
         state = newState;

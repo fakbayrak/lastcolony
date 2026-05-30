@@ -57,4 +57,31 @@ public class NPCManager : MonoBehaviour
         if (assigned < npcCount)
             Debug.Log($"NPCManager: {npcCount} NPC istendi, yalnızca {assigned} atanabildi (yeterli Idle NPC yok).");
     }
+
+    public void AssignGatherTask(NPC npc, string resourceKey)
+    {
+        // Haritada o tipte uygun bir ResourceNode bul
+        ResourceNode[] nodes = FindObjectsByType<ResourceNode>(FindObjectsSortMode.None);
+        ResourceNode target = null;
+
+        foreach (ResourceNode node in nodes)
+        {
+            if (node.ResourceType.ToString() == resourceKey && node.IsAvailable())
+            {
+                target = node;
+                break;
+            }
+        }
+
+        if (target != null)
+        {
+            npc.SetGatherTarget(target.transform.position, resourceKey);
+            Debug.Log($"[NPCManager] {npc.name} → {resourceKey} görevine atandı");
+        }
+        else
+        {
+            Debug.LogWarning($"[NPCManager] {resourceKey} için ResourceNode bulunamadı");
+            npc.SetIdle();
+        }
+    }
 }

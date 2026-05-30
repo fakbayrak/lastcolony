@@ -8,6 +8,8 @@ public class ResourceNode : MonoBehaviour
     [SerializeField] private int gatherAmountPerTrip = 10;
     [SerializeField] private float gatherDuration = 2f;
 
+    public ResourceType ResourceType => resourceType;
+
     public bool IsAvailable() => totalAmount > 0;
 
     public void Gather(NPC npc)
