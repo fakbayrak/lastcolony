@@ -32,8 +32,8 @@ public class NPCTaskUI : MonoBehaviour
     private void Start()
     {
         UpdateUI();
-        applyButton.onClick.AddListener(ApplyTasks);
-        toggleButton.onClick.AddListener(TogglePanel);
+        if (applyButton != null)  applyButton.onClick.AddListener(ApplyTasks);
+        if (toggleButton != null) toggleButton.onClick.AddListener(TogglePanel);
     }
 
     private void Update()

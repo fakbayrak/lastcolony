@@ -17,18 +17,19 @@ public class NPCTaskPanelCreator
         // Ana panel
         GameObject panel = CreateUIObject("NPCTaskPanel", canvas.transform);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
-        panelRect.anchorMin = new Vector2(1, 1);
+        // Sağ kenarı tamamen kaplasın
+        panelRect.anchorMin = new Vector2(1, 0);
         panelRect.anchorMax = new Vector2(1, 1);
-        panelRect.pivot = new Vector2(1, 1);
-        panelRect.anchoredPosition = new Vector2(0, -170);
-        panelRect.sizeDelta = new Vector2(260, 580);
+        panelRect.pivot = new Vector2(1, 0.5f);
+        panelRect.anchoredPosition = new Vector2(0, 0);
+        panelRect.sizeDelta = new Vector2(200, 0); // height 0 = stretch
 
         Image panelImg = panel.AddComponent<Image>();
         panelImg.color = new Color(0.12f, 0.18f, 0.24f, 0.95f);
 
         VerticalLayoutGroup vlg = panel.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 6;
-        vlg.padding = new RectOffset(10, 10, 10, 10);
+        vlg.spacing = 4;
+        vlg.padding = new RectOffset(8, 8, 8, 8);
         vlg.childForceExpandWidth = true;
         vlg.childForceExpandHeight = false;
         vlg.childAlignment = TextAnchor.UpperCenter;
@@ -52,20 +53,12 @@ public class NPCTaskPanelCreator
         CreateDivider(panel.transform);
 
         // Uygula butonu
-        GameObject applyBtn = CreateButton(panel.transform, "ApplyButton", "UYGULA", 16);
+        GameObject applyBtn = CreateButton(panel.transform, "ApplyButton", "UYGULA", 13);
         LayoutElement applyLE = applyBtn.AddComponent<LayoutElement>();
-        applyLE.preferredHeight = 50;
+        applyLE.preferredHeight = 40;
         applyBtn.GetComponent<Image>().color = new Color(0.15f, 0.55f, 0.25f, 1f);
 
-        // Toggle butonu — panelin dışında, sol üst köşesinde küçük bir buton
-        GameObject toggleBtn = CreateButton(canvas.transform, "ToggleButton", "<", 14);
-        RectTransform toggleRect = toggleBtn.GetComponent<RectTransform>();
-        toggleRect.anchorMin = new Vector2(1, 1);
-        toggleRect.anchorMax = new Vector2(1, 1);
-        toggleRect.pivot = new Vector2(1, 1);
-        toggleRect.anchoredPosition = new Vector2(-260, -170);
-        toggleRect.sizeDelta = new Vector2(30, 30);
-        toggleBtn.GetComponent<Image>().color = new Color(0.2f, 0.3f, 0.4f, 1f);
+        // Toggle butonu kaldırıldı — panel sağ kenarda sabit kaldığı için gerek yok.
 
         // === NPCTaskUI component'ini ekle ve referansları otomatik bağla ===
         NPCTaskUI npcTaskUI = panel.AddComponent<NPCTaskUI>();
@@ -89,7 +82,7 @@ public class NPCTaskPanelCreator
         so.FindProperty("metalCountText").objectReferenceValue = FindText(panel.transform, "MetalCountText");
         so.FindProperty("restCountText").objectReferenceValue  = FindText(panel.transform, "RestCountText");
         so.FindProperty("applyButton").objectReferenceValue    = FindButton(panel.transform, "ApplyButton");
-        so.FindProperty("toggleButton").objectReferenceValue   = toggleBtn.GetComponent<Button>();
+        so.FindProperty("toggleButton").objectReferenceValue   = null; // ToggleButton kaldırıldı
         so.ApplyModifiedProperties();
 
         // === Spinner butonlarının onClick olaylarını bağla ===
@@ -160,25 +153,25 @@ public class NPCTaskPanelCreator
         hlg.childAlignment = TextAnchor.MiddleCenter;
 
         LayoutElement rowLE = row.AddComponent<LayoutElement>();
-        rowLE.preferredHeight = 45;
+        rowLE.preferredHeight = 32;
 
         // Label
         GameObject lbl = CreateUIObject($"{key}Label", row.transform);
         TMP_Text lblText = lbl.AddComponent<TextMeshProUGUI>();
         lblText.text = label;
-        lblText.fontSize = 16;
+        lblText.fontSize = 13;
         lblText.color = Color.white;
         lblText.alignment = TextAlignmentOptions.MidlineLeft;
         LayoutElement lblLE = lbl.AddComponent<LayoutElement>();
-        lblLE.preferredWidth = 110;
-        lblLE.minWidth = 110;
+        lblLE.preferredWidth = 80;
+        lblLE.minWidth = 80;
         lblLE.flexibleWidth = 0;
 
         // Sub button
-        GameObject sub = CreateButton(row.transform, $"{key}Sub", "−", 18);
+        GameObject sub = CreateButton(row.transform, $"{key}Sub", "−", 13);
         LayoutElement subLE = sub.AddComponent<LayoutElement>();
-        subLE.preferredWidth = 36;
-        subLE.minWidth = 36;
+        subLE.preferredWidth = 28;
+        subLE.minWidth = 28;
         sub.GetComponent<Image>().color = new Color(0.6f, 0.2f, 0.2f, 1f);
 
         // Count text
@@ -189,14 +182,14 @@ public class NPCTaskPanelCreator
         countText.color = Color.white;
         countText.alignment = TextAlignmentOptions.Center;
         LayoutElement countLE = count.AddComponent<LayoutElement>();
-        countLE.preferredWidth = 40;
-        countLE.minWidth = 40;
+        countLE.preferredWidth = 30;
+        countLE.minWidth = 30;
 
         // Add button
-        GameObject add = CreateButton(row.transform, $"{key}Add", "+", 18);
+        GameObject add = CreateButton(row.transform, $"{key}Add", "+", 13);
         LayoutElement addLE = add.AddComponent<LayoutElement>();
-        addLE.preferredWidth = 36;
-        addLE.minWidth = 36;
+        addLE.preferredWidth = 28;
+        addLE.minWidth = 28;
         add.GetComponent<Image>().color = new Color(0.2f, 0.5f, 0.2f, 1f);
     }
 
