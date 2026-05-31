@@ -30,10 +30,10 @@ public class ResourceManager : MonoBehaviour
 
         inventory[ResourceType.Wood]          = 50;
         inventory[ResourceType.Stone]         = 30;
-        inventory[ResourceType.MetalOre]      = 10;
-        inventory[ResourceType.Lumber]        = 0;
-        inventory[ResourceType.ProcessedStone] = 0;
-        inventory[ResourceType.Metal]         = 0;
+        inventory[ResourceType.MetalOre]      = 20;
+        inventory[ResourceType.Lumber]        = 50;
+        inventory[ResourceType.ProcessedStone] = 30;
+        inventory[ResourceType.Metal]         = 10;
     }
 
     public void AddResource(ResourceType type, int amount)
