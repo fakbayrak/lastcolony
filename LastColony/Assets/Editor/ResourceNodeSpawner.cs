@@ -19,23 +19,26 @@ public class ResourceNodeSpawner
         foreach (ResourceNode n in existing)
             Undo.DestroyObjectImmediate(n.gameObject);
 
-        // Wood node'ları — sol üst köşe ve sol kenar (3 node)
-        SpawnNode(grid, ResourceType.Wood,     new Vector2Int(2,  14), 80);
-        SpawnNode(grid, ResourceType.Wood,     new Vector2Int(4,  11), 80);
-        SpawnNode(grid, ResourceType.Wood,     new Vector2Int(2,   8), 80);
+        // Wood node'ları — sol üst, sol orta, üst orta (5 node)
+        SpawnNode(grid, ResourceType.Wood,     new Vector2Int(2,  15), 100);
+        SpawnNode(grid, ResourceType.Wood,     new Vector2Int(4,  12), 100);
+        SpawnNode(grid, ResourceType.Wood,     new Vector2Int(2,   8), 100);
+        SpawnNode(grid, ResourceType.Wood,     new Vector2Int(7,  17), 100);
+        SpawnNode(grid, ResourceType.Wood,     new Vector2Int(5,   5), 100);
 
-        // Stone node'ları — sağ kenar ve sağ alt (3 node)
-        SpawnNode(grid, ResourceType.Stone,    new Vector2Int(17, 14), 60);
-        SpawnNode(grid, ResourceType.Stone,    new Vector2Int(16,  9), 60);
-        SpawnNode(grid, ResourceType.Stone,    new Vector2Int(17,  4), 60);
+        // Stone node'ları — sağ kenar ve sağ orta (4 node)
+        SpawnNode(grid, ResourceType.Stone,    new Vector2Int(17, 15), 80);
+        SpawnNode(grid, ResourceType.Stone,    new Vector2Int(16, 10), 80);
+        SpawnNode(grid, ResourceType.Stone,    new Vector2Int(17,  5), 80);
+        SpawnNode(grid, ResourceType.Stone,    new Vector2Int(13, 17), 80);
 
         // MetalOre node'ları — alt orta (2 node, nadir)
-        SpawnNode(grid, ResourceType.MetalOre, new Vector2Int(8,   3), 40);
-        SpawnNode(grid, ResourceType.MetalOre, new Vector2Int(13,  3), 40);
+        SpawnNode(grid, ResourceType.MetalOre, new Vector2Int(8,   3), 50);
+        SpawnNode(grid, ResourceType.MetalOre, new Vector2Int(13,  3), 50);
 
         Undo.CollapseUndoOperations(undoGroup);
         EditorSceneManager.MarkSceneDirty(grid.gameObject.scene);
-        Debug.Log("[ResourceNodeSpawner] 8 ResourceNode oluşturuldu.");
+        Debug.Log("[ResourceNodeSpawner] 11 ResourceNode oluşturuldu.");
     }
 
     private static void SpawnNode(GridManager grid, ResourceType type, Vector2Int gridPos, int amount)
