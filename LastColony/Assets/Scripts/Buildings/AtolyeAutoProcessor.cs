@@ -18,14 +18,27 @@ public class AtolyeAutoProcessor : MonoBehaviour
     {
         if (!HasAtolye()) return;
 
-        bool wood    = ResourceChain.Instance.Process(ResourceType.Wood);
-        bool stone   = ResourceChain.Instance.Process(ResourceType.Stone);
-        bool metal   = ResourceChain.Instance.Process(ResourceType.MetalOre);
+        int processCount = HasAssignedNPC() ? 2 : 1;
 
-        if (wood || stone || metal)
-            Debug.Log($"[AtolyeAutoProcessor] Gün {day}: Otomatik işleme tamamlandı.");
-        else
-            Debug.Log($"[AtolyeAutoProcessor] Gün {day}: İşlenecek ham madde yok.");
+        for (int i = 0; i < processCount; i++)
+        {
+            ResourceChain.Instance.Process(ResourceType.Wood);
+            ResourceChain.Instance.Process(ResourceType.Stone);
+            ResourceChain.Instance.Process(ResourceType.MetalOre);
+        }
+
+        Debug.Log($"[AtolyeAutoProcessor] Gün {day}: {processCount}x işleme tamamlandı.");
+    }
+
+    private bool HasAssignedNPC()
+    {
+        foreach (NPC npc in NPCManager.Instance.GetAllNPCs())
+        {
+            if (npc.CurrentState == NPCState.AssignedToBuilding &&
+                npc.AssignedBuildingType == "Atolye")
+                return true;
+        }
+        return false;
     }
 
     private bool HasAtolye()

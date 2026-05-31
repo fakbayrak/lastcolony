@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum NPCState { Idle, Moving, Working, Resting, Dead }
+public enum NPCState { Idle, Moving, Working, Resting, Dead, AssignedToBuilding }
 
 public class NPC : MonoBehaviour
 {
@@ -22,6 +22,9 @@ public class NPC : MonoBehaviour
     private GridManager gridManager;
     private Coroutine moveCoroutine;
     private ResourceNode currentResourceNode;
+    private string assignedBuildingType = "";
+    public string AssignedBuildingType => assignedBuildingType;
+    private float energyRestoreMultiplier = 1f;
 
     private const float HungerPerSecond      = 0.5f;
     private const float EnergyDrainPerSecond  = 10f;
@@ -69,10 +72,19 @@ public class NPC : MonoBehaviour
                 break;
 
             case NPCState.Resting:
-                energy = Mathf.Min(100f, energy + EnergyRestorePerSecond * Time.deltaTime);
+                energy = Mathf.Min(100f, energy + EnergyRestorePerSecond * energyRestoreMultiplier * Time.deltaTime);
 
                 if (energy >= ReadyEnergyThreshold)
                     SetState(NPCState.Idle);
+                break;
+
+            case NPCState.AssignedToBuilding:
+                energy = Mathf.Max(0f, energy - (EnergyDrainPerSecond * 0.5f) * Time.deltaTime);
+                if (energy < RestEnergyThreshold)
+                {
+                    assignedBuildingType = "";
+                    SetState(NPCState.Resting);
+                }
                 break;
 
             // Moving: hareketi kesme, varışta karar ver (FollowPath sonu)
@@ -149,6 +161,7 @@ public class NPC : MonoBehaviour
 
     public void SetIdle()
     {
+        assignedBuildingType = "";
         state = NPCState.Idle;
     }
 
@@ -164,6 +177,65 @@ public class NPC : MonoBehaviour
         Vector2Int targetGrid = gridManager.WorldToGrid(node.transform.position);
         Debug.Log($"[NPC] {name} → {node.ResourceType} hedefine yönlendiriliyor ({targetGrid})");
         MoveToInternal(targetGrid);
+    }
+
+    public void SetBuildingTarget(Vector2Int buildingGrid, string buildingType)
+    {
+        if (state == NPCState.Resting || state == NPCState.Dead) return;
+        if (hunger >= HungerWorkBlock) return;
+
+        assignedBuildingType = buildingType;
+        currentResourceNode = null;
+
+        Vector2Int currentGrid = gridManager.WorldToGrid(transform.position);
+        List<Vector2Int> path = Pathfinder.FindPath(currentGrid, buildingGrid);
+
+        if (path == null || path.Count <= 1)
+        {
+            state = NPCState.AssignedToBuilding;
+            return;
+        }
+
+        if (moveCoroutine != null)
+            StopCoroutine(moveCoroutine);
+
+        state = NPCState.Moving;
+        moveCoroutine = StartCoroutine(FollowPathToBuilding(path));
+    }
+
+    private IEnumerator FollowPathToBuilding(List<Vector2Int> path)
+    {
+        for (int i = 1; i < path.Count; i++)
+        {
+            if (TimeController.Instance != null && TimeController.Instance.IsPaused)
+            {
+                yield return null;
+                i--;
+                continue;
+            }
+            transform.position = gridManager.GridToWorld(path[i].x, path[i].y);
+            yield return new WaitForSeconds(MoveStepDelay);
+        }
+
+        moveCoroutine = null;
+
+        if (energy < RestEnergyThreshold)
+        {
+            assignedBuildingType = "";
+            SetState(NPCState.Resting);
+        }
+        else
+            state = NPCState.AssignedToBuilding;
+    }
+
+    public void ApplyBarakaBonus()
+    {
+        energyRestoreMultiplier = 2f;
+    }
+
+    public void ResetEnergyBonus()
+    {
+        energyRestoreMultiplier = 1f;
     }
 
     private void SetState(NPCState newState)

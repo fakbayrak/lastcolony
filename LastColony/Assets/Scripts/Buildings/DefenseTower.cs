@@ -9,6 +9,14 @@ public class DefenseTower : MonoBehaviour
     Enemy currentTarget;
     float attackTimer;
 
+    private float baseAttackDamage;
+    private bool bonusActive = false;
+
+    private void Start()
+    {
+        baseAttackDamage = attackDamage;
+    }
+
     void Update()
     {
         attackTimer += Time.deltaTime;
@@ -42,6 +50,22 @@ public class DefenseTower : MonoBehaviour
         }
 
         return nearest;
+    }
+
+    public void ApplyNPCBonus()
+    {
+        if (!bonusActive)
+        {
+            attackDamage = baseAttackDamage + 10f;
+            bonusActive = true;
+            Debug.Log("[DefenseTower] NPC bonusu aktif: saldırı gücü +" + 10f);
+        }
+    }
+
+    public void RemoveNPCBonus()
+    {
+        attackDamage = baseAttackDamage;
+        bonusActive = false;
     }
 
     void OnDrawGizmosSelected()
