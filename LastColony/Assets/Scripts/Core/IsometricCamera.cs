@@ -25,6 +25,7 @@ public class IsometricCamera : MonoBehaviour
     {
         // Grid merkezi 20x20 = (10, 10), izometrik kamera offseti
         transform.position = new Vector3(10f, 20f, -5f);
+        fixedY = 20f;
     }
 
     void Update()
