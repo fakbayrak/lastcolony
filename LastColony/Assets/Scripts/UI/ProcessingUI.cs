@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.InputSystem;
 
 public class ProcessingUI : MonoBehaviour
 {
@@ -39,7 +40,7 @@ public class ProcessingUI : MonoBehaviour
         if (!panel.activeSelf) return;
         RefreshInfo();
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
             HidePanel();
     }
 
