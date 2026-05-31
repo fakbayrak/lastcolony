@@ -173,7 +173,7 @@ public class GroundGenerator : MonoBehaviour
         GameObject mountainParent = new GameObject("Mountains");
         mountainParent.transform.SetParent(transform);
 
-        float baseZ = gridHeight + 12f;
+        float baseZ = gridHeight + 18f;
 
         float[,] peaks = new float[,]
         {
@@ -314,13 +314,23 @@ public class GroundGenerator : MonoBehaviour
         mf.mesh = mesh;
 
         // Vertex renklerini destekleyen shader
-        Material mat = new Material(Shader.Find("Standard"));
-        mat.enableInstancing = true;
-        mr.material = mat;
+        // Vertex Color shader — Unity built-in
+        Shader vcShader = Shader.Find("Particles/Standard Unlit");
+        if (vcShader == null) vcShader = Shader.Find("Legacy Shaders/Particles/Alpha Blended");
+        if (vcShader == null) vcShader = Shader.Find("Standard");
 
-        // Vertex renklerini aktif et
-        mr.material.SetFloat("_Glossiness", 0.1f);
-        mr.material.SetFloat("_Metallic", 0.0f);
+        Material mat = new Material(vcShader);
+
+        // Vertex renk desteği yoksa material rengini yüksekliğe göre ayarla
+        if (vcShader.name == "Standard")
+        {
+            float grayVal = 0.50f;
+            mat.color = new Color(grayVal, grayVal - 0.02f, grayVal - 0.08f);
+            mat.SetFloat("_Glossiness", 0.05f);
+            mat.SetFloat("_Metallic", 0.0f);
+        }
+
+        mr.material = mat;
     }
 
     private void CreateTree(float wx, float wz, float rand, Transform parent)
