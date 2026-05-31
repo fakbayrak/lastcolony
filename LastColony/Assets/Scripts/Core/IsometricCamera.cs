@@ -23,9 +23,13 @@ public class IsometricCamera : MonoBehaviour
 
     private void Start()
     {
-        // Grid merkezi 20x20 = (10, 10), izometrik kamera offseti
-        transform.position = new Vector3(10f, 20f, -5f);
+        // Grid 20x20, merkez dünya koordinatı (10, 0, 10)
+        // Kamera 45/45 açıda, orthographic size 15 → grid tam ortada görünsün
+        transform.position = new Vector3(10f, 20f, 10f);
         fixedY = 20f;
+
+        if (cam != null)
+            cam.orthographicSize = 15f;
     }
 
     void Update()
