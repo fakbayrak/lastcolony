@@ -42,8 +42,6 @@ public class BuildingInfoUI : MonoBehaviour
             closeButton.onClick.AddListener(HidePanel);
         if (upgradeButton != null)
         {
-            upgradeButton.onClick.RemoveAllListeners();
-            upgradeButton.onClick.AddListener(OnUpgradeClicked);
             Image img = upgradeButton.GetComponent<Image>();
             if (img != null) img.color = upgradeButtonColor;
         }
@@ -54,6 +52,16 @@ public class BuildingInfoUI : MonoBehaviour
             GameObject go = new GameObject("BuildingUpgradeManager");
             go.AddComponent<BuildingUpgradeManager>();
             Debug.Log("[BuildingInfoUI] BuildingUpgradeManager sahnede yoktu, kod ile oluşturuldu.");
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.RemoveAllListeners();
+            upgradeButton.onClick.AddListener(OnUpgradeClicked);
+            Debug.Log("Upgrade button listener bound in OnEnable");
         }
     }
 
@@ -95,6 +103,12 @@ public class BuildingInfoUI : MonoBehaviour
 
         // c. Yükseltme UI
         RefreshUpgradeUI();
+
+        if (upgradeButton != null)
+        {
+            Debug.Log($"upgradeButton.interactable={upgradeButton.interactable}");
+            Debug.Log($"upgradeButton.GetComponent<Image>().raycastTarget={upgradeButton.GetComponent<Image>()?.raycastTarget}");
+        }
     }
 
     public void HidePanel() => panel.SetActive(false);

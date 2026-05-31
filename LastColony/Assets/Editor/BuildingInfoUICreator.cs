@@ -113,7 +113,10 @@ public class BuildingInfoUICreator
         upgradeRect.anchoredPosition = new Vector2(0, -160);
         Image upgradeImage = upgradeBtn.AddComponent<Image>();
         upgradeImage.color = new Color(0.953f, 0.612f, 0.071f); // #F39C12
+        upgradeImage.raycastTarget = true;
         Button upgradeComp = upgradeBtn.AddComponent<Button>();
+        upgradeComp.interactable = true;
+        upgradeComp.targetGraphic = upgradeImage;
 
         GameObject upgradeTxt = new GameObject("Text");
         upgradeTxt.transform.SetParent(upgradeBtn.transform, false);
@@ -126,6 +129,7 @@ public class BuildingInfoUICreator
         upgradeTMP.fontStyle = FontStyles.Bold;
         upgradeTMP.alignment = TextAlignmentOptions.Center;
         upgradeTMP.color = Color.white;
+        upgradeTMP.raycastTarget = false; // text tıklamayı engellemesin
 
         // Maliyet yazısı
         GameObject costObj = new GameObject("CostText");
