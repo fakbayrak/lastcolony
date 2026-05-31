@@ -16,31 +16,31 @@ public class AtolyeVisual : MonoBehaviour
 
         // ── Gövde ────────────────────────────────────────────────────────
         CreateBox("Body", transform,
-            new Vector3(0f, 0.275f, 0f),
-            new Vector3(0.9f, 0.55f, 0.9f),
+            new Vector3(0f, 0.36f, 0f),
+            new Vector3(0.92f, 0.72f, 0.92f),
             bodyColor, Quaternion.identity);
 
         // ── Düz çatı ─────────────────────────────────────────────────────
         CreateBox("Roof", transform,
-            new Vector3(0f, 0.59f, 0f),
-            new Vector3(0.95f, 0.08f, 0.95f),
+            new Vector3(0f, 0.77f, 0f),
+            new Vector3(0.96f, 0.1f, 0.96f),
             roofColor, Quaternion.identity);
 
         // ── Baca (çatı üstü sağ köşe) ────────────────────────────────────
         CreateCylinder("Chimney", transform,
-            new Vector3(0.3f, 0.8f, 0.3f),
-            new Vector3(0.12f, 0.35f, 0.12f),
+            new Vector3(0.3f, 1.05f, 0.3f),
+            new Vector3(0.18f, 0.5f, 0.18f),
             chimneyColor);
 
         // ── Pencereler (yan duvarlar) ────────────────────────────────────
         CreateBox("WindowL", transform,
-            new Vector3(-0.46f, 0.3f, 0f),
-            new Vector3(0.12f, 0.12f, 0.04f),
+            new Vector3(-0.47f, 0.4f, 0f),
+            new Vector3(0.15f, 0.15f, 0.04f),
             windowColor, Quaternion.Euler(0f, 90f, 0f));
 
         CreateBox("WindowR", transform,
-            new Vector3(0.46f, 0.3f, 0f),
-            new Vector3(0.12f, 0.12f, 0.04f),
+            new Vector3(0.47f, 0.4f, 0f),
+            new Vector3(0.15f, 0.15f, 0.04f),
             windowColor, Quaternion.Euler(0f, 90f, 0f));
     }
 

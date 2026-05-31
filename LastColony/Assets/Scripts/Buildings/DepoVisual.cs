@@ -15,25 +15,30 @@ public class DepoVisual : MonoBehaviour
 
         // ── Gövde ────────────────────────────────────────────────────────
         CreateBox("Body", transform,
-            new Vector3(0f, 0.2f, 0f),
-            new Vector3(1.1f, 0.4f, 0.9f),
+            new Vector3(0f, 0.275f, 0f),
+            new Vector3(1.1f, 0.55f, 0.95f),
             bodyColor, Quaternion.identity);
 
-        // ── Çatı — kemer/tünel hissi için 3 eğimli plaka yan yana ────────
-        float[] zOffsets = { -0.3f, 0f, 0.3f };
-        float[] tilts    = { 18f, 0f, -18f };
-        for (int i = 0; i < zOffsets.Length; i++)
-        {
-            CreateBox($"Roof_{i}", transform,
-                new Vector3(0f, 0.52f, zOffsets[i]),
-                new Vector3(1.15f, 0.25f, 0.35f),
-                roofColor, Quaternion.Euler(tilts[i], 0f, 0f));
-        }
+        // ── Çatı — kemer efekti için merkez düz + 2 yan eğik ─────────────
+        CreateBox("RoofCenter", transform,
+            new Vector3(0f, 0.65f, 0f),
+            new Vector3(1.15f, 0.3f, 0.98f),
+            roofColor, Quaternion.identity);
+
+        CreateBox("RoofLeft", transform,
+            new Vector3(-0.5f, 0.62f, 0f),
+            new Vector3(0.4f, 0.28f, 0.98f),
+            roofColor, Quaternion.Euler(0f, 0f, 35f));
+
+        CreateBox("RoofRight", transform,
+            new Vector3(0.5f, 0.62f, 0f),
+            new Vector3(0.4f, 0.28f, 0.98f),
+            roofColor, Quaternion.Euler(0f, 0f, -35f));
 
         // ── Büyük kapı (ön yüz ortada) ───────────────────────────────────
         CreateBox("Door", transform,
-            new Vector3(0f, 0.15f, 0.46f),
-            new Vector3(0.25f, 0.25f, 0.05f),
+            new Vector3(0f, 0.16f, 0.48f),
+            new Vector3(0.3f, 0.32f, 0.05f),
             doorColor, Quaternion.identity);
     }
 
