@@ -15,7 +15,7 @@ public class GroundGenerator : MonoBehaviour
     [SerializeField] private float noiseScale      = 3f;
 
     [Header("Çevre Ayarları")]
-    [SerializeField] private int borderSize        = 20;
+    [SerializeField] private int borderSize        = 26;
     [SerializeField] private float treeNoiseCutoff = 0.55f;
     [SerializeField] private float treeNoiseScale  = 2.5f;
 
@@ -179,57 +179,78 @@ public class GroundGenerator : MonoBehaviour
         GameObject mountainParent = new GameObject("Mountains");
         mountainParent.transform.SetParent(transform);
 
-        // Kuzey dağ silüeti: grid'in üst kenarının (z = gridHeight + borderSize) gerisinde
-        float[] mountainData = new float[]
+        // Kuzey arka plan dağları — küçük, uzakta, ufuk çizgisi hissi
+        float baseZ = gridHeight + 22f;
+
+        float[,] peaks = new float[,]
         {
-            // wx, wz, yükseklik, taban genişlik
-             2f,  gridHeight + 14f, 8f,  5f,
-             8f,  gridHeight + 16f, 12f, 7f,
-            14f,  gridHeight + 15f, 10f, 6f,
-            20f,  gridHeight + 17f, 14f, 8f,
-            26f,  gridHeight + 14f, 9f,  5f,
-            -4f,  gridHeight + 13f, 7f,  4f,
-            32f,  gridHeight + 13f, 7f,  4f,
+            // wx,    wz,           height, radius
+            { -6f,   baseZ + 2f,   4.5f,   3.0f },
+            {  2f,   baseZ + 4f,   6.0f,   3.5f },
+            {  8f,   baseZ + 3f,   5.0f,   2.8f },
+            { 14f,   baseZ + 5f,   7.0f,   4.0f },
+            { 20f,   baseZ + 4f,   5.5f,   3.2f },
+            { 26f,   baseZ + 3f,   4.8f,   2.8f },
+            { 32f,   baseZ + 2f,   4.0f,   2.5f },
+            // Ön plan küçük tepeler
+            {  5f,   baseZ - 4f,   2.5f,   2.0f },
+            { 17f,   baseZ - 3f,   3.0f,   2.2f },
+            { 28f,   baseZ - 5f,   2.0f,   1.8f },
         };
 
-        for (int i = 0; i < mountainData.Length; i += 4)
+        for (int i = 0; i < peaks.GetLength(0); i++)
         {
-            float wx     = mountainData[i];
-            float wz     = mountainData[i + 1];
-            float height = mountainData[i + 2];
-            float radius = mountainData[i + 3];
-
-            CreateMountain(wx, wz, height, radius, mountainParent.transform);
+            CreateMountain(peaks[i, 0], peaks[i, 1], peaks[i, 2], peaks[i, 3], mountainParent.transform);
         }
     }
 
     private void CreateMountain(float wx, float wz, float height, float radius, Transform parent)
     {
-        // Dağ gövdesi — yassı koni (Cylinder ile simüle)
         GameObject mountain = new GameObject("Mountain");
         mountain.transform.SetParent(parent);
-        mountain.transform.position = new Vector3(wx, height * 0.5f, wz);
+        mountain.transform.position = new Vector3(wx, 0f, wz);
 
-        // Ana kütle (Cylinder)
-        GameObject body = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        body.name = "Body";
-        body.transform.SetParent(mountain.transform);
-        body.transform.localPosition = Vector3.zero;
-        body.transform.localScale = new Vector3(radius * 2f, height * 0.5f, radius * 2f);
-        Destroy(body.GetComponent<Collider>());
+        // Zemin tabanı (düz yeşil-gri daire, dağ eteği)
+        GameObject baseDisk = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        baseDisk.name = "Base";
+        baseDisk.transform.SetParent(mountain.transform);
+        baseDisk.transform.localPosition = new Vector3(0f, 0.05f, 0f);
+        baseDisk.transform.localScale = new Vector3(radius * 2.2f, 0.05f, radius * 2.2f);
+        Destroy(baseDisk.GetComponent<Collider>());
+        SetMaterialColor(baseDisk, new Color(0.28f, 0.38f, 0.22f));
 
-        float grayVal = 0.45f + Random.Range(0f, 0.15f);
-        SetMaterialColor(body, new Color(grayVal, grayVal, grayVal));
+        // Alt kütle — geniş ve alçak (dağ gövdesi)
+        GameObject bodyLow = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        bodyLow.name = "BodyLow";
+        bodyLow.transform.SetParent(mountain.transform);
+        bodyLow.transform.localPosition = new Vector3(0f, height * 0.25f, 0f);
+        bodyLow.transform.localScale = new Vector3(radius * 2f, height * 0.5f, radius * 2f);
+        Destroy(bodyLow.GetComponent<Collider>());
+        float grayLow = 0.40f + Random.Range(0f, 0.10f);
+        SetMaterialColor(bodyLow, new Color(grayLow, grayLow - 0.02f, grayLow - 0.05f));
 
-        // Kar başlığı (Sphere, üstte)
-        GameObject snow = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        snow.name = "Snow";
-        snow.transform.SetParent(mountain.transform);
-        snow.transform.localPosition = new Vector3(0f, height * 0.35f, 0f);
-        float snowSize = radius * 0.7f;
-        snow.transform.localScale = new Vector3(snowSize, snowSize * 0.6f, snowSize);
-        Destroy(snow.GetComponent<Collider>());
-        SetMaterialColor(snow, new Color(0.92f, 0.95f, 1.0f));
+        // Orta kütle — biraz daha dar
+        GameObject bodyMid = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        bodyMid.name = "BodyMid";
+        bodyMid.transform.SetParent(mountain.transform);
+        bodyMid.transform.localPosition = new Vector3(0f, height * 0.6f, 0f);
+        bodyMid.transform.localScale = new Vector3(radius * 1.2f, height * 0.45f, radius * 1.2f);
+        Destroy(bodyMid.GetComponent<Collider>());
+        float grayMid = 0.48f + Random.Range(0f, 0.10f);
+        SetMaterialColor(bodyMid, new Color(grayMid, grayMid - 0.01f, grayMid - 0.03f));
+
+        // Kar başlığı — sadece yüksek dağlarda
+        if (height >= 5f)
+        {
+            GameObject snow = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            snow.name = "Snow";
+            snow.transform.SetParent(mountain.transform);
+            snow.transform.localPosition = new Vector3(0f, height * 0.88f, 0f);
+            float snowSize = radius * 0.5f;
+            snow.transform.localScale = new Vector3(snowSize, snowSize * 0.55f, snowSize);
+            Destroy(snow.GetComponent<Collider>());
+            SetMaterialColor(snow, new Color(0.93f, 0.95f, 1.0f));
+        }
     }
 
     private void CreateTree(float wx, float wz, float rand, Transform parent)
