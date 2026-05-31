@@ -84,66 +84,167 @@ public class EventManager : MonoBehaviour
 
     void BuildEventPool()
     {
+        // 1. Salgın Hastalık
         eventPool.Add(new GameEvent
         {
-            Title = "Salgın Hastalık",
-            Description = "Kolonide hastalık yayılıyor. 3 kolonici yataklık.",
+            Title = "Salgin Hastalik",
+            Description = "Kolonide hastalik yayiliyor.\n3 kolonici yataklik durumda.",
             RequiresChoice = true,
-            ChoiceAText = "Hastaneye kaynak harca (Wood -20, acil tedavi)",
-            ChoiceBText = "Karantina ilan et (üretim yavaşlar)",
+            ChoiceAText = "Hastaneye kaynak harca\n(Wood -20, salgin onlenir)",
+            ChoiceBText = "Karantina ilan et\n(uretim 3 gun %50 yavaslar)",
             OnChoiceA = () =>
             {
                 ResourceManager.Instance.RemoveResource(ResourceType.Wood, 20);
-                Debug.Log("Salgın Hastalık: Wood -20 harcandı, salgın önlendi.");
+                Debug.Log("[Event] Salgin onlendi: Wood -20");
             },
             OnChoiceB = () =>
             {
-                Debug.Log("Karantina: üretim yüzde 50 yavaşladı — TODO: etki eklenecek");
+                SeasonManager.Instance.ApplyProductionPenalty(0.5f, 3);
+                Debug.Log("[Event] Karantina: uretim 3 gun %50 yavaslar");
             }
         });
 
+        // 2. Büyük Fırtına
         eventPool.Add(new GameEvent
         {
-            Title = "Büyük Fırtına",
-            Description = "Şiddetli bir fırtına kaynakları tahrip etti.",
+            Title = "Buyuk Firtina",
+            Description = "Siddetli bir firtina kaynaklari tahrip etti.\nDepolarin bir kismi zarar gordu.",
             RequiresChoice = false,
             OnAutoResolve = () =>
             {
                 ResourceManager.Instance.RemoveResource(ResourceType.Wood, 20);
                 ResourceManager.Instance.RemoveResource(ResourceType.Stone, 10);
-                Debug.Log("Büyük Fırtına: Wood -20, Stone -10 kayboldu.");
+                Debug.Log("[Event] Firtina: Wood -20, Stone -10");
             }
         });
 
+        // 3. Depo Çöküşü
         eventPool.Add(new GameEvent
         {
-            Title = "Depo Çöküşü",
-            Description = "Eski depo çöktü, işlenmiş malzeme kayboldu.",
+            Title = "Depo Cokusu",
+            Description = "Eski depo coktu.\nIslenmis malzeme kayboldu.",
             RequiresChoice = false,
             OnAutoResolve = () =>
             {
                 ResourceManager.Instance.RemoveResource(ResourceType.Lumber, 15);
                 ResourceManager.Instance.RemoveResource(ResourceType.ProcessedStone, 10);
-                Debug.Log("Depo Çöküşü: Lumber -15, ProcessedStone -10 kayboldu.");
+                Debug.Log("[Event] Depo cokusu: Lumber -15, ProcessedStone -10");
             }
         });
 
+        // 4. Yabancı Gezgin
         eventPool.Add(new GameEvent
         {
-            Title = "Yabancı Gezgin",
-            Description = "Kapına bir gezgin geldi. Ne yapacaksın?",
+            Title = "Yabanci Gezgin",
+            Description = "Kapina bir gezgin geldi.\nNe yapacaksin?",
             RequiresChoice = true,
-            ChoiceAText = "Kabul et (yeni iş gücü kazanırsın)",
-            ChoiceBText = "Reddet (Stone +15 al, güvende kal)",
+            ChoiceAText = "Kabul et\n(1 yeni kolonici katilir)",
+            ChoiceBText = "Reddet\n(Stone +15 al, guvende kal)",
             OnChoiceA = () =>
             {
-                Debug.Log("Yeni kolonici katıldı — TODO: spawn eklenecek");
+                SpawnNewNPC();
+                Debug.Log("[Event] Yeni kolonici katildi!");
             },
             OnChoiceB = () =>
             {
                 ResourceManager.Instance.AddResource(ResourceType.Stone, 15);
-                Debug.Log("Yabancı Gezgin reddedildi: Stone +15 alındı.");
+                Debug.Log("[Event] Gezgin reddedildi: Stone +15");
             }
         });
+
+        // 5. Göçmen Kafile (YENİ)
+        eventPool.Add(new GameEvent
+        {
+            Title = "Gocmen Kafile",
+            Description = "Uzak diyarlardan bir kafile geldi.\nKolonine katilmak istiyorlar.",
+            RequiresChoice = true,
+            ChoiceAText = "Kabul et\n(3 yeni kolonici, Wood -30)",
+            ChoiceBText = "Reddet\n(kafile devam eder)",
+            OnChoiceA = () =>
+            {
+                bool hasWood = ResourceManager.Instance.HasEnough(ResourceType.Wood, 30);
+                if (hasWood)
+                {
+                    ResourceManager.Instance.RemoveResource(ResourceType.Wood, 30);
+                    SpawnNewNPC();
+                    SpawnNewNPC();
+                    SpawnNewNPC();
+                    Debug.Log("[Event] Gocmen kafile kabul edildi: 3 NPC eklendi, Wood -30");
+                }
+                else
+                {
+                    SpawnNewNPC();
+                    Debug.Log("[Event] Yeterli kaynak yok, sadece 1 NPC katildi");
+                }
+            },
+            OnChoiceB = () =>
+            {
+                Debug.Log("[Event] Gocmen kafile reddedildi");
+            }
+        });
+
+        // 6. Altın Fırsat (YENİ)
+        eventPool.Add(new GameEvent
+        {
+            Title = "Altin Firsat",
+            Description = "Gezgin bir tüccar değerli mallar\ntaşıyor. Ne alacaksın?",
+            RequiresChoice = true,
+            ChoiceAText = "Metal al\n(Wood -25, Metal +15)",
+            ChoiceBText = "Kereste al\n(Stone -20, Lumber +20)",
+            OnChoiceA = () =>
+            {
+                ResourceManager.Instance.RemoveResource(ResourceType.Wood, 25);
+                ResourceManager.Instance.AddResource(ResourceType.Metal, 15);
+                Debug.Log("[Event] Tuccar: Wood -25, Metal +15");
+            },
+            OnChoiceB = () =>
+            {
+                ResourceManager.Instance.RemoveResource(ResourceType.Stone, 20);
+                ResourceManager.Instance.AddResource(ResourceType.Lumber, 20);
+                Debug.Log("[Event] Tuccar: Stone -20, Lumber +20");
+            }
+        });
+    }
+
+    void SpawnNewNPC()
+    {
+        if (NPCManager.Instance == null) return;
+
+        // Grid merkezine yakın rastgele boş hücre bul
+        for (int attempt = 0; attempt < 20; attempt++)
+        {
+            int x = UnityEngine.Random.Range(7, 13);
+            int z = UnityEngine.Random.Range(7, 13);
+
+            if (!GridManager.Instance.IsCellOccupied(x, z))
+            {
+                Vector3 spawnPos = GridManager.Instance.GridToWorld(x, z);
+                spawnPos.y = 0f;
+
+                GameObject npcPrefab = Resources.Load<GameObject>("NPC_Prefab");
+                if (npcPrefab == null)
+                {
+                    // Prefab Resources'ta değilse mevcut NPC'lerden birini bul ve klonla
+                    var existingNPCs = NPCManager.Instance.GetAllNPCs();
+                    if (existingNPCs.Count > 0)
+                    {
+                        GameObject clone = UnityEngine.Object.Instantiate(
+                            existingNPCs[0].gameObject, spawnPos, Quaternion.identity);
+                        clone.name = $"NPC_Event_{System.DateTime.Now.Ticks}";
+
+                        NPC npc = clone.GetComponent<NPC>();
+                        if (npc != null) npc.SetIdle();
+                        return;
+                    }
+                }
+                else
+                {
+                    GameObject npcObj = UnityEngine.Object.Instantiate(npcPrefab, spawnPos, Quaternion.identity);
+                    npcObj.AddComponent<NPCVisual>();
+                    return;
+                }
+            }
+        }
+        Debug.LogWarning("[EventManager] SpawnNewNPC: Uygun hucre bulunamadi");
     }
 }

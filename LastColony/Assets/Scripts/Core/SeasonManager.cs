@@ -11,7 +11,12 @@ public class SeasonManager : MonoBehaviour
 
     public Season CurrentSeason { get; private set; } = Season.Summer;
     public float ConsumptionMultiplier { get; private set; } = 1f;
-    public float ProductionMultiplier { get; private set; } = 1f;
+
+    private float baseProductionMultiplier = 1f;
+    public float ProductionMultiplier => baseProductionMultiplier * productionPenalty;
+
+    private float productionPenalty = 1f;
+    private int penaltyDaysRemaining = 0;
 
     int currentSeasonDay;
     int totalDaysPassed;
@@ -30,6 +35,29 @@ public class SeasonManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         ApplyMultipliers(CurrentSeason);
+    }
+
+    private void OnEnable()  { DayNightCycle.OnDayPassed += OnDayPassedPenalty; }
+    private void OnDisable() { DayNightCycle.OnDayPassed -= OnDayPassedPenalty; }
+
+    private void OnDayPassedPenalty(int day)
+    {
+        if (penaltyDaysRemaining > 0)
+        {
+            penaltyDaysRemaining--;
+            if (penaltyDaysRemaining <= 0)
+            {
+                productionPenalty = 1f;
+                Debug.Log("[SeasonManager] Karantina sona erdi, uretim normale dondu.");
+            }
+        }
+    }
+
+    public void ApplyProductionPenalty(float multiplier, int days)
+    {
+        productionPenalty = multiplier;
+        penaltyDaysRemaining = days;
+        Debug.Log($"[SeasonManager] Uretim cezasi: x{multiplier}, {days} gun");
     }
 
     public void OnDayPassed()
@@ -68,7 +96,7 @@ public class SeasonManager : MonoBehaviour
 
     void ApplyMultipliers(Season season)
     {
-        (ConsumptionMultiplier, ProductionMultiplier) = season switch
+        (ConsumptionMultiplier, baseProductionMultiplier) = season switch
         {
             Season.Summer => (1.0f, 1.0f),
             Season.Autumn => (1.2f, 0.8f),
