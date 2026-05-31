@@ -5,6 +5,8 @@ public class SpawnManager : MonoBehaviour
 {
     public static SpawnManager Instance { get; private set; }
 
+    public static event System.Action OnRaidStarted;
+
     [SerializeField] int minEnemiesPerWave = 2;
     [SerializeField] int maxEnemiesPerWave = 4;
     [SerializeField] float minDaysBetweenAttacks = 5f;
@@ -66,6 +68,7 @@ public class SpawnManager : MonoBehaviour
         }
 
         attackActive = true;
+        OnRaidStarted?.Invoke();
         int count = Random.Range(minEnemiesPerWave, maxEnemiesPerWave + 1);
 
         for (int i = 0; i < count; i++)
