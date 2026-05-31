@@ -7,21 +7,24 @@ public class NPCSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject npcPrefab;
 
-    // 20x20 grid merkezi (10,10) civarına dağılmış 12 spawn noktası
+    // 20x20 grid merkezi (10,10) civarına dağılmış 15 spawn noktası (5x3)
     private static readonly Vector2Int[] spawnPoints =
     {
-        new Vector2Int( 8,  8),
-        new Vector2Int( 9,  8),
-        new Vector2Int(10,  8),
-        new Vector2Int(11,  8),
         new Vector2Int( 8,  9),
         new Vector2Int( 9,  9),
         new Vector2Int(10,  9),
         new Vector2Int(11,  9),
+        new Vector2Int(12,  9),
         new Vector2Int( 8, 10),
         new Vector2Int( 9, 10),
         new Vector2Int(10, 10),
         new Vector2Int(11, 10),
+        new Vector2Int(12, 10),
+        new Vector2Int( 8, 11),
+        new Vector2Int( 9, 11),
+        new Vector2Int(10, 11),
+        new Vector2Int(11, 11),
+        new Vector2Int(12, 11),
     };
 
     private void Start()
