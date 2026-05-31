@@ -15,6 +15,9 @@ public class DefenseTower : MonoBehaviour
     private void Start()
     {
         baseAttackDamage = attackDamage;
+
+        if (GetComponent<TowerVisual>() == null)
+            gameObject.AddComponent<TowerVisual>();
     }
 
     void Update()
@@ -24,10 +27,21 @@ public class DefenseTower : MonoBehaviour
 
         if (currentTarget != null && attackTimer >= attackCooldown)
         {
-            currentTarget.TakeDamage(attackDamage);
+            FireProjectile(currentTarget);
             attackTimer = 0f;
-            Debug.Log($"Kule ateş etti: {attackDamage} hasar");
         }
+    }
+
+    void FireProjectile(Enemy target)
+    {
+        // Ateş noktası: kulenin üst kısmı
+        Vector3 firePoint = transform.position + Vector3.up * 1.6f;
+
+        GameObject projObj = new GameObject("Projectile");
+        projObj.transform.position = firePoint;
+
+        Projectile proj = projObj.AddComponent<Projectile>();
+        proj.Init(target, attackDamage);
     }
 
     Enemy FindTargetInRange()
