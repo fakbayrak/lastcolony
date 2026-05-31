@@ -175,7 +175,7 @@ public class BuildingInfoUI : MonoBehaviour
             if (maxLevelText != null)
             {
                 maxLevelText.gameObject.SetActive(true);
-                maxLevelText.text = "✓ MAKSİMUM SEVİYE";
+                maxLevelText.text = "** MAKSİMUM SEVİYE **";
             }
         }
     }
