@@ -26,6 +26,8 @@ public class Enemy : MonoBehaviour
     void Start()
     {
         health = maxHealth;
+        if (GetComponent<EnemyVisual>() == null)
+            gameObject.AddComponent<EnemyVisual>();
         currentState = EnemyState.Moving;
 
         Vector2Int startGrid = GridManager.Instance.WorldToGrid(transform.position);
