@@ -43,7 +43,6 @@ public class GroundGenerator : MonoBehaviour
         GenerateBorder();
         GenerateRiver();
         GenerateTrees();
-        GenerateMountains();
     }
 
     // ─── Grid zemini ───────────────────────────────────────────────────────────
@@ -149,16 +148,30 @@ public class GroundGenerator : MonoBehaviour
                 if (x >= 0 && x < gridWidth && z >= 0 && z < gridHeight)
                     continue;
 
-                // Dere alanını atla (x = -8 ile -1)
+                // Dere alanını atla
                 if (x >= -9 && x <= -1)
                     continue;
 
-                float noise = Mathf.PerlinNoise((x + 300f) / treeNoiseScale, (z + 300f) / treeNoiseScale);
-                if (noise < treeNoiseCutoff) continue;
-
-                // Rastgele varyasyon için seed
                 float rand = Mathf.PerlinNoise(x * 7.3f, z * 3.7f);
-                if (rand < 0.20f) continue; // Seyrekleştir
+
+                // Grid'e yakın kenarlarda (1-3 birim) seyrek ağaç
+                bool nearGridEdge =
+                    (x >= -3 && x < 0) ||
+                    (x >= gridWidth && x < gridWidth + 3) ||
+                    (z >= -3 && z < 0) ||
+                    (z >= gridHeight && z < gridHeight + 3);
+
+                if (nearGridEdge)
+                {
+                    // Kenarda sadece %40 doluluk
+                    if (rand < 0.60f) continue;
+                }
+                else
+                {
+                    // Uzak alanlarda %85 doluluk — neredeyse tam dolu
+                    float noise = Mathf.PerlinNoise((x + 300f) / treeNoiseScale, (z + 300f) / treeNoiseScale);
+                    if (noise < 0.25f && rand < 0.40f) continue;
+                }
 
                 float wx = x + 0.5f + (rand - 0.5f) * 0.4f;
                 float wz = z + 0.5f + (Mathf.PerlinNoise(x * 5f, z * 5f) - 0.5f) * 0.4f;
@@ -166,171 +179,6 @@ public class GroundGenerator : MonoBehaviour
                 CreateTree(wx, wz, rand, treeParent.transform);
             }
         }
-    }
-
-    private void GenerateMountains()
-    {
-        GameObject mountainParent = new GameObject("Mountains");
-        mountainParent.transform.SetParent(transform);
-
-        float baseZ = gridHeight + 18f;
-
-        float[,] peaks = new float[,]
-        {
-            // wx,    wz,           height, radius
-            { -4f,   baseZ + 0f,   6.0f,   4.0f },
-            {  3f,   baseZ + 3f,   9.0f,   5.5f },
-            { 10f,   baseZ + 5f,  12.0f,   7.0f },
-            { 18f,   baseZ + 4f,  10.0f,   6.0f },
-            { 25f,   baseZ + 2f,   8.0f,   5.0f },
-            { 31f,   baseZ + 0f,   6.0f,   4.0f },
-            // Ön küçük tepeler
-            {  0f,   baseZ - 5f,   4.0f,   3.0f },
-            { 14f,   baseZ - 3f,   5.0f,   3.5f },
-            { 27f,   baseZ - 4f,   4.5f,   3.0f },
-        };
-
-        for (int i = 0; i < peaks.GetLength(0); i++)
-            CreateMountain(peaks[i,0], peaks[i,1], peaks[i,2], peaks[i,3], mountainParent.transform);
-    }
-
-    private void CreateMountain(float wx, float wz, float height, float radius, Transform parent)
-    {
-        GameObject mountain = new GameObject("Mountain");
-        mountain.transform.SetParent(parent);
-        mountain.transform.position = new Vector3(wx, 0f, wz);
-
-        MeshFilter mf = mountain.AddComponent<MeshFilter>();
-        MeshRenderer mr = mountain.AddComponent<MeshRenderer>();
-
-        // Dağ mesh'i: tabanda çember, tepede nokta (koni benzeri ama yumuşak)
-        int segments = 16;
-        int rings    = 6;
-
-        // Vertex sayısı: her ring * segments + tepe noktası + taban merkezi
-        int vertCount = (rings + 1) * (segments + 1) + 2;
-        Vector3[] verts  = new Vector3[vertCount];
-        Color[]   colors = new Color[vertCount];
-        int[]     tris   = new int[segments * rings * 6 + segments * 3 + segments * 3];
-
-        int vi = 0;
-
-        // Taban merkezi
-        verts[vi]  = new Vector3(0f, 0f, 0f);
-        colors[vi] = new Color(0.28f, 0.35f, 0.20f); // yeşil-kahve taban
-        int baseCenterIdx = vi++;
-
-        // Ring'ler: tabandan tepeye
-        for (int r = 0; r <= rings; r++)
-        {
-            float t = (float)r / rings; // 0 = taban, 1 = tepe
-
-            // Dağ profili: kare kök eğrisi — tabanda geniş, yukarı doğru hızla daralır
-            float radiusAtRing = radius * Mathf.Pow(1f - t, 0.6f);
-            float heightAtRing = height * Mathf.Pow(t, 0.8f);
-
-            // Renk: tabanda yeşil-kahve, ortada gri-kahve, tepede açık gri/beyaz
-            Color ringColor;
-            if (t < 0.3f)
-                ringColor = Color.Lerp(new Color(0.30f, 0.38f, 0.22f), new Color(0.45f, 0.42f, 0.38f), t / 0.3f);
-            else if (t < 0.75f)
-                ringColor = Color.Lerp(new Color(0.45f, 0.42f, 0.38f), new Color(0.58f, 0.56f, 0.54f), (t - 0.3f) / 0.45f);
-            else
-                ringColor = Color.Lerp(new Color(0.58f, 0.56f, 0.54f), new Color(0.90f, 0.92f, 0.95f), (t - 0.75f) / 0.25f);
-
-            for (int s = 0; s <= segments; s++)
-            {
-                float angle = (float)s / segments * Mathf.PI * 2f;
-                // Hafif gürültü ile doğallık
-                float noiseR = 1f + Mathf.PerlinNoise(wx * 0.3f + s * 0.4f, wz * 0.3f + r * 0.7f) * 0.25f - 0.125f;
-                float noiseH = 1f + Mathf.PerlinNoise(wx * 0.5f + r * 0.3f, wz * 0.5f + s * 0.2f) * 0.15f - 0.075f;
-
-                float rx = Mathf.Cos(angle) * radiusAtRing * noiseR;
-                float rz = Mathf.Sin(angle) * radiusAtRing * noiseR;
-                float ry = heightAtRing * noiseH;
-
-                verts[vi]  = new Vector3(rx, ry, rz);
-                colors[vi] = ringColor;
-                vi++;
-            }
-        }
-
-        // Tepe noktası
-        int peakIdx = vi;
-        verts[vi]  = new Vector3(0f, height, 0f);
-        colors[vi] = new Color(0.92f, 0.94f, 0.97f);
-        vi++;
-
-        // Triangle'lar
-        int ti = 0;
-
-        // Taban disk
-        for (int s = 0; s < segments; s++)
-        {
-            tris[ti++] = baseCenterIdx;
-            tris[ti++] = 1 + s;
-            tris[ti++] = 1 + (s + 1) % segments;
-        }
-
-        // Ring'ler arası yan yüzeyler
-        for (int r = 0; r < rings; r++)
-        {
-            int ringStart     = 1 + r       * (segments + 1);
-            int nextRingStart = 1 + (r + 1) * (segments + 1);
-
-            for (int s = 0; s < segments; s++)
-            {
-                int curr     = ringStart     + s;
-                int next     = ringStart     + s + 1;
-                int currTop  = nextRingStart + s;
-                int nextTop  = nextRingStart + s + 1;
-
-                tris[ti++] = curr;
-                tris[ti++] = currTop;
-                tris[ti++] = next;
-
-                tris[ti++] = next;
-                tris[ti++] = currTop;
-                tris[ti++] = nextTop;
-            }
-        }
-
-        // Tepe üçgenleri
-        int lastRingStart = 1 + rings * (segments + 1);
-        for (int s = 0; s < segments; s++)
-        {
-            tris[ti++] = lastRingStart + s;
-            tris[ti++] = peakIdx;
-            tris[ti++] = lastRingStart + s + 1;
-        }
-
-        Mesh mesh = new Mesh();
-        mesh.name = "MountainMesh";
-        mesh.vertices  = verts;
-        mesh.colors    = colors;
-        mesh.triangles = tris;
-        mesh.RecalculateNormals();
-
-        mf.mesh = mesh;
-
-        // Vertex renklerini destekleyen shader
-        // Vertex Color shader — Unity built-in
-        Shader vcShader = Shader.Find("Particles/Standard Unlit");
-        if (vcShader == null) vcShader = Shader.Find("Legacy Shaders/Particles/Alpha Blended");
-        if (vcShader == null) vcShader = Shader.Find("Standard");
-
-        Material mat = new Material(vcShader);
-
-        // Vertex renk desteği yoksa material rengini yüksekliğe göre ayarla
-        if (vcShader.name == "Standard")
-        {
-            float grayVal = 0.50f;
-            mat.color = new Color(grayVal, grayVal - 0.02f, grayVal - 0.08f);
-            mat.SetFloat("_Glossiness", 0.05f);
-            mat.SetFloat("_Metallic", 0.0f);
-        }
-
-        mr.material = mat;
     }
 
     private void CreateTree(float wx, float wz, float rand, Transform parent)
