@@ -16,7 +16,7 @@ public class GroundGenerator : MonoBehaviour
 
     [Header("Çevre Ayarları")]
     [SerializeField] private int borderSize        = 26;
-    [SerializeField] private float treeNoiseCutoff = 0.55f;
+    [SerializeField] private float treeNoiseCutoff = 0.40f;
     [SerializeField] private float treeNoiseScale  = 2.5f;
 
     private int gridWidth;
@@ -102,36 +102,30 @@ public class GroundGenerator : MonoBehaviour
         GameObject riverParent = new GameObject("River");
         riverParent.transform.SetParent(transform);
 
-        // Dere: x = -7 ile -2 arasında sabit şerit, z boyunca hafif kıvrımlı
-        for (int z = -borderSize; z < gridHeight + borderSize; z++)
+        int riverLeft  = -7;
+        int riverRight = -2;
+        int zStart = -borderSize;
+        int zEnd   = gridHeight + borderSize;
+
+        for (int z = zStart; z < zEnd; z++)
         {
-            // Kıvrım: z'ye göre x offset, maksimum 1 birim
-            float curve = Mathf.Sin(z * 0.18f) * 1.0f;
-            int offsetInt = Mathf.RoundToInt(curve);
-
-            int riverLeft  = -7 + offsetInt;
-            int riverRight = -2 + offsetInt;
-
-            // Zemin altı — dere tabanı (koyu mavi)
+            // Zemin tabanı (koyu mavi)
             for (int x = riverLeft - 1; x <= riverRight + 1; x++)
             {
-                float wx = x + 0.5f;
-                float wz = z + 0.5f;
-                CreateQuad($"RiverBase_{x}_{z}", wx, wz, 1.02f, -0.03f,
-                    new Color(0.10f, 0.25f, 0.50f), riverParent.transform);
+                CreateQuad($"RiverBase_{x}_{z}", x + 0.5f, z + 0.5f,
+                    1.02f, -0.03f, new Color(0.10f, 0.25f, 0.50f), riverParent.transform);
             }
 
-            // Su yüzeyi (açık mavi, hafif dalgalı y)
+            // Su yüzeyi
             for (int x = riverLeft; x <= riverRight; x++)
             {
-                float wx = x + 0.5f;
-                float wz = z + 0.5f;
-                float wave = Mathf.Sin(wz * 2.1f + wx * 1.3f) * 0.015f;
+                float wave = Mathf.Sin(z * 0.8f) * 0.01f;
                 bool isEdge = (x == riverLeft || x == riverRight);
                 Color c = isEdge
                     ? new Color(0.25f, 0.52f, 0.68f)
                     : new Color(0.18f, 0.44f, 0.72f);
-                CreateQuad($"River_{x}_{z}", wx, wz, 1.0f, 0.01f + wave, c, riverParent.transform);
+                CreateQuad($"River_{x}_{z}", x + 0.5f, z + 0.5f,
+                    1.0f, 0.01f + wave, c, riverParent.transform);
             }
         }
     }
@@ -164,7 +158,7 @@ public class GroundGenerator : MonoBehaviour
 
                 // Rastgele varyasyon için seed
                 float rand = Mathf.PerlinNoise(x * 7.3f, z * 3.7f);
-                if (rand < 0.35f) continue; // Seyrekleştir
+                if (rand < 0.20f) continue; // Seyrekleştir
 
                 float wx = x + 0.5f + (rand - 0.5f) * 0.4f;
                 float wz = z + 0.5f + (Mathf.PerlinNoise(x * 5f, z * 5f) - 0.5f) * 0.4f;
@@ -179,29 +173,25 @@ public class GroundGenerator : MonoBehaviour
         GameObject mountainParent = new GameObject("Mountains");
         mountainParent.transform.SetParent(transform);
 
-        // Kuzey arka plan dağları — küçük, uzakta, ufuk çizgisi hissi
-        float baseZ = gridHeight + 22f;
+        float baseZ = gridHeight + 12f;
 
         float[,] peaks = new float[,]
         {
             // wx,    wz,           height, radius
-            { -6f,   baseZ + 2f,   4.5f,   3.0f },
-            {  2f,   baseZ + 4f,   6.0f,   3.5f },
-            {  8f,   baseZ + 3f,   5.0f,   2.8f },
-            { 14f,   baseZ + 5f,   7.0f,   4.0f },
-            { 20f,   baseZ + 4f,   5.5f,   3.2f },
-            { 26f,   baseZ + 3f,   4.8f,   2.8f },
-            { 32f,   baseZ + 2f,   4.0f,   2.5f },
-            // Ön plan küçük tepeler
-            {  5f,   baseZ - 4f,   2.5f,   2.0f },
-            { 17f,   baseZ - 3f,   3.0f,   2.2f },
-            { 28f,   baseZ - 5f,   2.0f,   1.8f },
+            { -4f,   baseZ + 0f,   6.0f,   4.0f },
+            {  3f,   baseZ + 3f,   9.0f,   5.5f },
+            { 10f,   baseZ + 5f,  12.0f,   7.0f },
+            { 18f,   baseZ + 4f,  10.0f,   6.0f },
+            { 25f,   baseZ + 2f,   8.0f,   5.0f },
+            { 31f,   baseZ + 0f,   6.0f,   4.0f },
+            // Ön küçük tepeler
+            {  0f,   baseZ - 5f,   4.0f,   3.0f },
+            { 14f,   baseZ - 3f,   5.0f,   3.5f },
+            { 27f,   baseZ - 4f,   4.5f,   3.0f },
         };
 
         for (int i = 0; i < peaks.GetLength(0); i++)
-        {
-            CreateMountain(peaks[i, 0], peaks[i, 1], peaks[i, 2], peaks[i, 3], mountainParent.transform);
-        }
+            CreateMountain(peaks[i,0], peaks[i,1], peaks[i,2], peaks[i,3], mountainParent.transform);
     }
 
     private void CreateMountain(float wx, float wz, float height, float radius, Transform parent)
