@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b462f3f06ad9bd846b72349f33f833fa, type: 3}
+  m_Name: Baraka
+  m_EditorClassIdentifier: Assembly-CSharp::BuildingData
+  buildingName: Baraka
+  buildingNameTR: Baraka
+  toolbarIcon: {fileID: 21300000, guid: 030863d58507e664c837c551b55e6d2c, type: 3}
+  prefab: {fileID: 2694469485373561431, guid: e36d22ae5d37fbc4083b6da200c36b69, type: 3}
+  costLumber: 20
+  costProcessedStone: 0
+  costMetal: 0
+  description: 
