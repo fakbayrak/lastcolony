@@ -19,4 +19,5 @@ MonoBehaviour:
   costLumber: 15
   costProcessedStone: 10
   costMetal: 0
-  description: 
+  description: "Toplanan ham madde ve i\u015Flenmi\u015F kaynaklar\u0131 depolar.
+    Depo kapasitesi dolunca kaynak toplamak durur."

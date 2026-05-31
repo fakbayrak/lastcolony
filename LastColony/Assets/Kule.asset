@@ -19,4 +19,6 @@ MonoBehaviour:
   costLumber: 0
   costProcessedStone: 20
   costMetal: 10
-  description: 
+  description: "Yak\u0131n menzildeki d\xFC\u015Fmanlara otomatik ate\u015F a\xE7ar.
+    Koloninin \xE7evresine yerle\u015Ftirilerek sald\u0131r\u0131lara kar\u015F\u0131
+    koruma sa\u011Flar."

@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b462f3f06ad9bd846b72349f33f833fa, type: 3}
   m_Name: "At\xF6lye"
   m_EditorClassIdentifier: Assembly-CSharp::BuildingData
-  buildingName: "At\xF6lye"
+  buildingName: Atolye
   buildingNameTR: "At\xF6lye"
   toolbarIcon: {fileID: 21300000, guid: 839e40dd727b0794f9a7b75c190cb5c6, type: 3}
   prefab: {fileID: 8822203949961383701, guid: d45901432f5b9214694f005f7dbff649, type: 3}
   costLumber: 25
   costProcessedStone: 0
   costMetal: 0
-  description: 
+  description: "Ham maddeleri i\u015Flenmi\u015F kaynaklara d\xF6n\xFC\u015Ft\xFCr\xFCr.
+    Her g\xFCn otomatik \xE7al\u0131\u015F\u0131r: 10 Odun -> 5 Kereste, 10 Ta\u015F
+    -> 5 \u0130\u015Flenmi\u015F Ta\u015F, 5 Maden -> 3 Metal."
