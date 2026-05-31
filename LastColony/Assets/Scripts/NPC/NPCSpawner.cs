@@ -32,7 +32,9 @@ public class NPCSpawner : MonoBehaviour
         foreach (Vector2Int gridPos in spawnPoints)
         {
             Vector3 worldPos = GridManager.Instance.GridToWorld(gridPos.x, gridPos.y);
-            Instantiate(npcPrefab, worldPos, Quaternion.identity);
+            GameObject npcObj = Instantiate(npcPrefab, worldPos, Quaternion.identity);
+            if (npcObj.GetComponent<NPCVisual>() == null)
+                npcObj.AddComponent<NPCVisual>();
         }
 
         StartCoroutine(AssignTaskDelayed());
