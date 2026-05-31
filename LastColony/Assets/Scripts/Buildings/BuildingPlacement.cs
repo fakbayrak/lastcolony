@@ -35,7 +35,7 @@ public class BuildingPlacement : MonoBehaviour
     {
         mainCamera = Camera.main;
         InitHighlight();
-        isPlacingBuilding = true;
+        isPlacingBuilding = false;
     }
 
     void InitHighlight()
@@ -122,6 +122,8 @@ public class BuildingPlacement : MonoBehaviour
             resourceManager.RemoveResource("ProcessedStone", costProcessedStone);
             resourceManager.RemoveResource("Metal", costMetal);
         }
+
+        ExitPlacementMode();
     }
 
     public void LoadBuildingRecord(PlacedBuildingRecord record)
@@ -154,7 +156,7 @@ public class BuildingPlacement : MonoBehaviour
         isPlacingBuilding = true;
     }
 
-    void ExitPlacementMode()
+    public void ExitPlacementMode()
     {
         isPlacingBuilding = false;
         highlightQuad.SetActive(false);
