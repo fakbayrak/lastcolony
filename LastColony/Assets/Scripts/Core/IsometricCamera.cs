@@ -28,7 +28,7 @@ public class IsometricCamera : MonoBehaviour
         fixedY = 20f;
 
         if (cam != null)
-            cam.orthographicSize = 13f;
+            cam.orthographicSize = 16f;
     }
 
     void Update()
@@ -67,7 +67,7 @@ public class IsometricCamera : MonoBehaviour
         if (scroll == 0f) return;
 
         cam.orthographicSize = Mathf.Clamp(
-            cam.orthographicSize - scroll * zoomSpeed * Time.deltaTime,
+            cam.orthographicSize - scroll * 0.5f,
             minZoom,
             maxZoom
         );
