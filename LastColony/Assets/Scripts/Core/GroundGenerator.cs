@@ -200,47 +200,127 @@ public class GroundGenerator : MonoBehaviour
         mountain.transform.SetParent(parent);
         mountain.transform.position = new Vector3(wx, 0f, wz);
 
-        // Zemin tabanı (düz yeşil-gri daire, dağ eteği)
-        GameObject baseDisk = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-        baseDisk.name = "Base";
-        baseDisk.transform.SetParent(mountain.transform);
-        baseDisk.transform.localPosition = new Vector3(0f, 0.05f, 0f);
-        baseDisk.transform.localScale = new Vector3(radius * 2.2f, 0.05f, radius * 2.2f);
-        Destroy(baseDisk.GetComponent<Collider>());
-        SetMaterialColor(baseDisk, new Color(0.28f, 0.38f, 0.22f));
+        MeshFilter mf = mountain.AddComponent<MeshFilter>();
+        MeshRenderer mr = mountain.AddComponent<MeshRenderer>();
 
-        // Alt kütle — geniş ve alçak (dağ gövdesi)
-        GameObject bodyLow = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        bodyLow.name = "BodyLow";
-        bodyLow.transform.SetParent(mountain.transform);
-        bodyLow.transform.localPosition = new Vector3(0f, height * 0.25f, 0f);
-        bodyLow.transform.localScale = new Vector3(radius * 2f, height * 0.5f, radius * 2f);
-        Destroy(bodyLow.GetComponent<Collider>());
-        float grayLow = 0.40f + Random.Range(0f, 0.10f);
-        SetMaterialColor(bodyLow, new Color(grayLow, grayLow - 0.02f, grayLow - 0.05f));
+        // Dağ mesh'i: tabanda çember, tepede nokta (koni benzeri ama yumuşak)
+        int segments = 16;
+        int rings    = 6;
 
-        // Orta kütle — biraz daha dar
-        GameObject bodyMid = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        bodyMid.name = "BodyMid";
-        bodyMid.transform.SetParent(mountain.transform);
-        bodyMid.transform.localPosition = new Vector3(0f, height * 0.6f, 0f);
-        bodyMid.transform.localScale = new Vector3(radius * 1.2f, height * 0.45f, radius * 1.2f);
-        Destroy(bodyMid.GetComponent<Collider>());
-        float grayMid = 0.48f + Random.Range(0f, 0.10f);
-        SetMaterialColor(bodyMid, new Color(grayMid, grayMid - 0.01f, grayMid - 0.03f));
+        // Vertex sayısı: her ring * segments + tepe noktası + taban merkezi
+        int vertCount = (rings + 1) * (segments + 1) + 2;
+        Vector3[] verts  = new Vector3[vertCount];
+        Color[]   colors = new Color[vertCount];
+        int[]     tris   = new int[segments * rings * 6 + segments * 3 + segments * 3];
 
-        // Kar başlığı — sadece yüksek dağlarda
-        if (height >= 5f)
+        int vi = 0;
+
+        // Taban merkezi
+        verts[vi]  = new Vector3(0f, 0f, 0f);
+        colors[vi] = new Color(0.28f, 0.35f, 0.20f); // yeşil-kahve taban
+        int baseCenterIdx = vi++;
+
+        // Ring'ler: tabandan tepeye
+        for (int r = 0; r <= rings; r++)
         {
-            GameObject snow = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            snow.name = "Snow";
-            snow.transform.SetParent(mountain.transform);
-            snow.transform.localPosition = new Vector3(0f, height * 0.88f, 0f);
-            float snowSize = radius * 0.5f;
-            snow.transform.localScale = new Vector3(snowSize, snowSize * 0.55f, snowSize);
-            Destroy(snow.GetComponent<Collider>());
-            SetMaterialColor(snow, new Color(0.93f, 0.95f, 1.0f));
+            float t = (float)r / rings; // 0 = taban, 1 = tepe
+
+            // Dağ profili: kare kök eğrisi — tabanda geniş, yukarı doğru hızla daralır
+            float radiusAtRing = radius * Mathf.Pow(1f - t, 0.6f);
+            float heightAtRing = height * Mathf.Pow(t, 0.8f);
+
+            // Renk: tabanda yeşil-kahve, ortada gri-kahve, tepede açık gri/beyaz
+            Color ringColor;
+            if (t < 0.3f)
+                ringColor = Color.Lerp(new Color(0.30f, 0.38f, 0.22f), new Color(0.45f, 0.42f, 0.38f), t / 0.3f);
+            else if (t < 0.75f)
+                ringColor = Color.Lerp(new Color(0.45f, 0.42f, 0.38f), new Color(0.58f, 0.56f, 0.54f), (t - 0.3f) / 0.45f);
+            else
+                ringColor = Color.Lerp(new Color(0.58f, 0.56f, 0.54f), new Color(0.90f, 0.92f, 0.95f), (t - 0.75f) / 0.25f);
+
+            for (int s = 0; s <= segments; s++)
+            {
+                float angle = (float)s / segments * Mathf.PI * 2f;
+                // Hafif gürültü ile doğallık
+                float noiseR = 1f + Mathf.PerlinNoise(wx * 0.3f + s * 0.4f, wz * 0.3f + r * 0.7f) * 0.25f - 0.125f;
+                float noiseH = 1f + Mathf.PerlinNoise(wx * 0.5f + r * 0.3f, wz * 0.5f + s * 0.2f) * 0.15f - 0.075f;
+
+                float rx = Mathf.Cos(angle) * radiusAtRing * noiseR;
+                float rz = Mathf.Sin(angle) * radiusAtRing * noiseR;
+                float ry = heightAtRing * noiseH;
+
+                verts[vi]  = new Vector3(rx, ry, rz);
+                colors[vi] = ringColor;
+                vi++;
+            }
         }
+
+        // Tepe noktası
+        int peakIdx = vi;
+        verts[vi]  = new Vector3(0f, height, 0f);
+        colors[vi] = new Color(0.92f, 0.94f, 0.97f);
+        vi++;
+
+        // Triangle'lar
+        int ti = 0;
+
+        // Taban disk
+        for (int s = 0; s < segments; s++)
+        {
+            tris[ti++] = baseCenterIdx;
+            tris[ti++] = 1 + s;
+            tris[ti++] = 1 + (s + 1) % segments;
+        }
+
+        // Ring'ler arası yan yüzeyler
+        for (int r = 0; r < rings; r++)
+        {
+            int ringStart     = 1 + r       * (segments + 1);
+            int nextRingStart = 1 + (r + 1) * (segments + 1);
+
+            for (int s = 0; s < segments; s++)
+            {
+                int curr     = ringStart     + s;
+                int next     = ringStart     + s + 1;
+                int currTop  = nextRingStart + s;
+                int nextTop  = nextRingStart + s + 1;
+
+                tris[ti++] = curr;
+                tris[ti++] = currTop;
+                tris[ti++] = next;
+
+                tris[ti++] = next;
+                tris[ti++] = currTop;
+                tris[ti++] = nextTop;
+            }
+        }
+
+        // Tepe üçgenleri
+        int lastRingStart = 1 + rings * (segments + 1);
+        for (int s = 0; s < segments; s++)
+        {
+            tris[ti++] = lastRingStart + s;
+            tris[ti++] = peakIdx;
+            tris[ti++] = lastRingStart + s + 1;
+        }
+
+        Mesh mesh = new Mesh();
+        mesh.name = "MountainMesh";
+        mesh.vertices  = verts;
+        mesh.colors    = colors;
+        mesh.triangles = tris;
+        mesh.RecalculateNormals();
+
+        mf.mesh = mesh;
+
+        // Vertex renklerini destekleyen shader
+        Material mat = new Material(Shader.Find("Standard"));
+        mat.enableInstancing = true;
+        mr.material = mat;
+
+        // Vertex renklerini aktif et
+        mr.material.SetFloat("_Glossiness", 0.1f);
+        mr.material.SetFloat("_Metallic", 0.0f);
     }
 
     private void CreateTree(float wx, float wz, float rand, Transform parent)
