@@ -2,9 +2,9 @@ using UnityEngine;
 
 public class DefenseTower : MonoBehaviour
 {
-    [SerializeField] float attackRange = 5f;
-    [SerializeField] float attackDamage = 15f;
-    [SerializeField] float attackCooldown = 2f;
+    [SerializeField] float attackRange   = 7f;   // 5 → 7
+    [SerializeField] float attackDamage  = 25f;  // 15 → 25
+    [SerializeField] float attackCooldown = 1.2f; // 2 → 1.2
 
     Enemy currentTarget;
     float attackTimer;

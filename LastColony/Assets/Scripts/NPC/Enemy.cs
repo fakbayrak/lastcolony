@@ -6,11 +6,11 @@ public enum EnemyState { Moving, Attacking, Dead }
 
 public class Enemy : MonoBehaviour
 {
-    [SerializeField] float maxHealth = 50f;
-    [SerializeField] float moveSpeed = 2f;
-    [SerializeField] float attackDamage = 10f;
+    [SerializeField] float maxHealth      = 80f;  // 50 → 80  (daha sağlam ama kule öldürebilir)
+    [SerializeField] float moveSpeed      = 1.4f; // 2 → 1.4  (daha yavaş)
+    [SerializeField] float attackDamage   = 8f;   // 10 → 8   (biraz daha az hasar)
     [SerializeField] float attackRange = 1.5f;
-    [SerializeField] float attackCooldown = 1.5f;
+    [SerializeField] float attackCooldown = 2.0f; // 1.5 → 2  (daha seyrek saldırı)
 
     public static event Action<Enemy> OnEnemyDied;
 
