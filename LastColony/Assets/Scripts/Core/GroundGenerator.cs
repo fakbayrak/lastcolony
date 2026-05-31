@@ -15,7 +15,7 @@ public class GroundGenerator : MonoBehaviour
     [SerializeField] private float noiseScale      = 3f;
 
     [Header("Çevre Ayarları")]
-    [SerializeField] private int borderSize        = 8;
+    [SerializeField] private int borderSize        = 20;
     [SerializeField] private float treeNoiseCutoff = 0.55f;
     [SerializeField] private float treeNoiseScale  = 2.5f;
 
@@ -43,6 +43,7 @@ public class GroundGenerator : MonoBehaviour
         GenerateBorder();
         GenerateRiver();
         GenerateTrees();
+        GenerateMountains();
     }
 
     // ─── Grid zemini ───────────────────────────────────────────────────────────
@@ -101,30 +102,36 @@ public class GroundGenerator : MonoBehaviour
         GameObject riverParent = new GameObject("River");
         riverParent.transform.SetParent(transform);
 
-        // Dere: x = -6 ile -1 arasında, tüm z boyunca kıvrımlı
-        int riverStartX = -6;
-        int riverEndX   = -1;
-
+        // Dere: x = -7 ile -2 arasında sabit şerit, z boyunca hafif kıvrımlı
         for (int z = -borderSize; z < gridHeight + borderSize; z++)
         {
-            // Perlin noise ile kıvrım: her z satırında genişlik ve offset değişir
-            float offset = Mathf.PerlinNoise(0f, (z + 50f) / 4f) * 1.5f;
-            int localStart = riverStartX + Mathf.RoundToInt(offset);
-            int localEnd   = riverEndX   + Mathf.RoundToInt(offset * 0.5f);
+            // Kıvrım: z'ye göre x offset, maksimum 1 birim
+            float curve = Mathf.Sin(z * 0.18f) * 1.0f;
+            int offsetInt = Mathf.RoundToInt(curve);
 
-            for (int x = localStart; x <= localEnd; x++)
+            int riverLeft  = -7 + offsetInt;
+            int riverRight = -2 + offsetInt;
+
+            // Zemin altı — dere tabanı (koyu mavi)
+            for (int x = riverLeft - 1; x <= riverRight + 1; x++)
             {
                 float wx = x + 0.5f;
                 float wz = z + 0.5f;
+                CreateQuad($"RiverBase_{x}_{z}", wx, wz, 1.02f, -0.03f,
+                    new Color(0.10f, 0.25f, 0.50f), riverParent.transform);
+            }
 
-                // Kenar mı orta mı?
-                bool isEdge = (x == localStart || x == localEnd);
-                Color c = isEdge ? riverEdgeColor : riverColor;
-
-                // Hafif dalgalanma için y yüksekliği
-                float wave = Mathf.Sin(wz * 1.5f + wx * 0.5f) * 0.02f;
-
-                CreateQuad($"River_{x}_{z}", wx, wz, 1.0f, -0.005f + wave, c, riverParent.transform);
+            // Su yüzeyi (açık mavi, hafif dalgalı y)
+            for (int x = riverLeft; x <= riverRight; x++)
+            {
+                float wx = x + 0.5f;
+                float wz = z + 0.5f;
+                float wave = Mathf.Sin(wz * 2.1f + wx * 1.3f) * 0.015f;
+                bool isEdge = (x == riverLeft || x == riverRight);
+                Color c = isEdge
+                    ? new Color(0.25f, 0.52f, 0.68f)
+                    : new Color(0.18f, 0.44f, 0.72f);
+                CreateQuad($"River_{x}_{z}", wx, wz, 1.0f, 0.01f + wave, c, riverParent.transform);
             }
         }
     }
@@ -149,7 +156,7 @@ public class GroundGenerator : MonoBehaviour
                     continue;
 
                 // Dere alanını atla (x = -8 ile -1)
-                if (x >= -8 && x <= -1)
+                if (x >= -9 && x <= -1)
                     continue;
 
                 float noise = Mathf.PerlinNoise((x + 300f) / treeNoiseScale, (z + 300f) / treeNoiseScale);
@@ -165,6 +172,64 @@ public class GroundGenerator : MonoBehaviour
                 CreateTree(wx, wz, rand, treeParent.transform);
             }
         }
+    }
+
+    private void GenerateMountains()
+    {
+        GameObject mountainParent = new GameObject("Mountains");
+        mountainParent.transform.SetParent(transform);
+
+        // Kuzey dağ silüeti: grid'in üst kenarının (z = gridHeight + borderSize) gerisinde
+        float[] mountainData = new float[]
+        {
+            // wx, wz, yükseklik, taban genişlik
+             2f,  gridHeight + 14f, 8f,  5f,
+             8f,  gridHeight + 16f, 12f, 7f,
+            14f,  gridHeight + 15f, 10f, 6f,
+            20f,  gridHeight + 17f, 14f, 8f,
+            26f,  gridHeight + 14f, 9f,  5f,
+            -4f,  gridHeight + 13f, 7f,  4f,
+            32f,  gridHeight + 13f, 7f,  4f,
+        };
+
+        for (int i = 0; i < mountainData.Length; i += 4)
+        {
+            float wx     = mountainData[i];
+            float wz     = mountainData[i + 1];
+            float height = mountainData[i + 2];
+            float radius = mountainData[i + 3];
+
+            CreateMountain(wx, wz, height, radius, mountainParent.transform);
+        }
+    }
+
+    private void CreateMountain(float wx, float wz, float height, float radius, Transform parent)
+    {
+        // Dağ gövdesi — yassı koni (Cylinder ile simüle)
+        GameObject mountain = new GameObject("Mountain");
+        mountain.transform.SetParent(parent);
+        mountain.transform.position = new Vector3(wx, height * 0.5f, wz);
+
+        // Ana kütle (Cylinder)
+        GameObject body = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+        body.name = "Body";
+        body.transform.SetParent(mountain.transform);
+        body.transform.localPosition = Vector3.zero;
+        body.transform.localScale = new Vector3(radius * 2f, height * 0.5f, radius * 2f);
+        Destroy(body.GetComponent<Collider>());
+
+        float grayVal = 0.45f + Random.Range(0f, 0.15f);
+        SetMaterialColor(body, new Color(grayVal, grayVal, grayVal));
+
+        // Kar başlığı (Sphere, üstte)
+        GameObject snow = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+        snow.name = "Snow";
+        snow.transform.SetParent(mountain.transform);
+        snow.transform.localPosition = new Vector3(0f, height * 0.35f, 0f);
+        float snowSize = radius * 0.7f;
+        snow.transform.localScale = new Vector3(snowSize, snowSize * 0.6f, snowSize);
+        Destroy(snow.GetComponent<Collider>());
+        SetMaterialColor(snow, new Color(0.92f, 0.95f, 1.0f));
     }
 
     private void CreateTree(float wx, float wz, float rand, Transform parent)
