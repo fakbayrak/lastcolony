@@ -124,6 +124,9 @@ public class BuildingPlacement : MonoBehaviour
             resourceManager.RemoveResource("Metal", costMetal);
         }
 
+        if (BuildingUpgradeManager.Instance != null)
+            BuildingUpgradeManager.Instance.RegisterBuilding(gridPos, currentBuildingType);
+
         ExitPlacementMode();
     }
 

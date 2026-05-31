@@ -57,6 +57,13 @@ public class ResourceManager : MonoBehaviour
         return inventory[type];
     }
 
+    public int GetResource(string key)
+    {
+        if (System.Enum.TryParse<ResourceType>(key, out ResourceType type))
+            return inventory[type];
+        return 0;
+    }
+
     public bool HasEnough(ResourceType type, int amount)
     {
         return inventory[type] >= amount;

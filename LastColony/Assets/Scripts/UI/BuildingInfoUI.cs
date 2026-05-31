@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -16,6 +17,18 @@ public class BuildingInfoUI : MonoBehaviour
     [SerializeField] private TMP_Text detailText;
     [SerializeField] private Button closeButton;
 
+    [Header("Yükseltme")]
+    [SerializeField] private Button upgradeButton;
+    [SerializeField] private TMP_Text upgradeButtonText;
+    [SerializeField] private TMP_Text costText;
+    [SerializeField] private TMP_Text maxLevelText;
+
+    private BuildingData currentData;
+    private Vector2Int currentGridPos;
+    private bool hasGridPos;
+    private Color upgradeButtonColor = new Color(0.953f, 0.612f, 0.071f); // #F39C12
+    private Coroutine flashRoutine;
+
     private void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
@@ -27,6 +40,12 @@ public class BuildingInfoUI : MonoBehaviour
         panel.SetActive(false);
         if (closeButton != null)
             closeButton.onClick.AddListener(HidePanel);
+        if (upgradeButton != null)
+        {
+            upgradeButton.onClick.AddListener(OnUpgradeClicked);
+            Image img = upgradeButton.GetComponent<Image>();
+            if (img != null) img.color = upgradeButtonColor;
+        }
     }
 
     private void Update()
@@ -38,14 +57,106 @@ public class BuildingInfoUI : MonoBehaviour
 
     public void ShowPanel(BuildingData data)
     {
+        currentData = data;
+        hasGridPos = false;
         buildingNameText.text = data.buildingNameTR;
         descriptionText.text  = data.description;
         detailText.text       = BuildDetailText(data);
+        RefreshUpgradeUI();
+        panel.SetActive(true);
+    }
+
+    public void ShowPanel(BuildingData data, Vector2Int gridPos)
+    {
+        currentGridPos = gridPos;
+        hasGridPos = true;
+        currentData = data;
+        buildingNameText.text = data.buildingNameTR;
+        descriptionText.text  = data.description;
+        detailText.text       = BuildDetailText(data);
+        RefreshUpgradeUI();
         panel.SetActive(true);
     }
 
     public void HidePanel() => panel.SetActive(false);
     public bool IsVisible() => panel != null && panel.activeSelf;
+
+    private void RefreshUpgradeUI()
+    {
+        var mgr = BuildingUpgradeManager.Instance;
+        if (!hasGridPos || mgr == null)
+        {
+            if (upgradeButton != null) upgradeButton.gameObject.SetActive(false);
+            if (costText != null)      costText.gameObject.SetActive(false);
+            if (maxLevelText != null)  maxLevelText.gameObject.SetActive(false);
+            return;
+        }
+
+        int tier = mgr.GetTier(currentGridPos);
+
+        if (mgr.CanUpgrade(currentGridPos))
+        {
+            var cost = mgr.GetUpgradeCost(currentGridPos);
+
+            if (upgradeButton != null) upgradeButton.gameObject.SetActive(true);
+            if (upgradeButtonText != null)
+                upgradeButtonText.text = $"YÜKSELT (Tier {tier}→{tier + 1})";
+            if (costText != null)
+            {
+                costText.gameObject.SetActive(true);
+                costText.text = $"Maliyet: {cost.lumber} Kereste, " +
+                                $"{cost.processedStone} İşlenmiş Taş, {cost.metal} Metal";
+            }
+            if (maxLevelText != null) maxLevelText.gameObject.SetActive(false);
+        }
+        else
+        {
+            if (upgradeButton != null) upgradeButton.gameObject.SetActive(false);
+            if (costText != null)      costText.gameObject.SetActive(false);
+            if (maxLevelText != null)
+            {
+                maxLevelText.gameObject.SetActive(true);
+                maxLevelText.text = "Maksimum Seviye";
+            }
+        }
+    }
+
+    private void OnUpgradeClicked()
+    {
+        var mgr = BuildingUpgradeManager.Instance;
+        if (!hasGridPos || mgr == null) return;
+
+        if (mgr.TryUpgrade(currentGridPos))
+        {
+            int newTier = mgr.GetTier(currentGridPos);
+            GameObject building = GridManager.Instance.GetBuildingAt(currentGridPos);
+            if (building != null)
+            {
+                IBuildingVisual visual = building.GetComponent<IBuildingVisual>();
+                if (visual != null) visual.UpgradeTo(newTier);
+            }
+            RefreshUpgradeUI();
+        }
+        else
+        {
+            // Yetersiz kaynak — butonu kısa süre kırmızı yap
+            if (upgradeButton != null)
+            {
+                if (flashRoutine != null) StopCoroutine(flashRoutine);
+                flashRoutine = StartCoroutine(FlashButtonRed());
+            }
+        }
+    }
+
+    private IEnumerator FlashButtonRed()
+    {
+        Image img = upgradeButton.GetComponent<Image>();
+        if (img == null) yield break;
+
+        img.color = new Color(0.8f, 0.1f, 0.1f);
+        yield return new WaitForSeconds(0.4f);
+        img.color = upgradeButtonColor;
+    }
 
     private string BuildDetailText(BuildingData data)
     {

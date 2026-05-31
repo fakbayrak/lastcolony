@@ -34,7 +34,8 @@ public class BuildingClickDetector : MonoBehaviour
                     if (BuildingInfoUI.Instance.IsVisible())
                         BuildingInfoUI.Instance.HidePanel();
                     else
-                        BuildingInfoUI.Instance.ShowPanel(data);
+                        BuildingInfoUI.Instance.ShowPanel(data,
+                            new Vector2Int(record.gridX, record.gridY));
                 }
                 return;
             }

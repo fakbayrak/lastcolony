@@ -66,6 +66,13 @@ public class GridManager : MonoBehaviour
         return grid[x, y].isOccupied;
     }
 
+    public GameObject GetBuildingAt(Vector2Int gridPos)
+    {
+        if (IsInBounds(gridPos.x, gridPos.y) && grid[gridPos.x, gridPos.y].isOccupied)
+            return grid[gridPos.x, gridPos.y].occupyingObject;
+        return null;
+    }
+
     private bool IsInBounds(int x, int y)
     {
         return x >= 0 && x < width && y >= 0 && y < height;
