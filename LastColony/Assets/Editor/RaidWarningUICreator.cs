@@ -48,7 +48,7 @@ public class RaidWarningUICreator
         textRect.anchoredPosition = Vector2.zero;
 
         TMP_Text text = textObj.AddComponent<TextMeshProUGUI>();
-        text.text      = "⚠ BASKIN! ⚠";
+        text.text      = "!! BASKIN !!";
         text.fontSize  = 36;
         text.fontStyle = FontStyles.Bold;
         text.alignment = TextAlignmentOptions.Center;
