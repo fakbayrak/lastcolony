@@ -42,6 +42,7 @@ public class BuildingInfoUI : MonoBehaviour
             closeButton.onClick.AddListener(HidePanel);
         if (upgradeButton != null)
         {
+            upgradeButton.onClick.RemoveAllListeners();
             upgradeButton.onClick.AddListener(OnUpgradeClicked);
             Image img = upgradeButton.GetComponent<Image>();
             if (img != null) img.color = upgradeButtonColor;
@@ -167,16 +168,38 @@ public class BuildingInfoUI : MonoBehaviour
 
     private void OnUpgradeClicked()
     {
-        var mgr = BuildingUpgradeManager.Instance;
-        if (!hasGridPos || mgr == null) return;
+        Debug.Log("Upgrade button clicked!");
+        Debug.Log($"currentGridPos={currentGridPos}");
+        Debug.Log($"BuildingUpgradeManager.Instance={BuildingUpgradeManager.Instance}");
 
-        if (mgr.TryUpgrade(currentGridPos))
+        var mgr = BuildingUpgradeManager.Instance;
+        if (!hasGridPos || mgr == null)
+        {
+            Debug.LogWarning($"[BuildingInfoUI] Yükseltme yapılamıyor. hasGridPos={hasGridPos}, mgr={mgr}");
+            return;
+        }
+
+        var cost = mgr.GetUpgradeCost(currentGridPos);
+        Debug.Log($"Upgrade cost: lumber={cost.lumber}, stone={cost.processedStone}, metal={cost.metal}");
+        Debug.Log($"Current lumber={ResourceManager.Instance.GetResource("Lumber")}, " +
+                  $"stone={ResourceManager.Instance.GetResource("ProcessedStone")}, " +
+                  $"metal={ResourceManager.Instance.GetResource("Metal")}");
+
+        bool success = mgr.TryUpgrade(currentGridPos);
+        Debug.Log($"TryUpgrade result={success}");
+
+        if (success)
         {
             int newTier = mgr.GetTier(currentGridPos);
+            Debug.Log($"New tier={newTier}");
+
             GameObject building = GridManager.Instance.GetBuildingAt(currentGridPos);
+            Debug.Log($"Building found={building}");
+
             if (building != null)
             {
                 IBuildingVisual visual = building.GetComponent<IBuildingVisual>();
+                Debug.Log($"Visual found={visual}");
                 if (visual != null) visual.UpgradeTo(newTier);
             }
             RefreshUpgradeUI();
