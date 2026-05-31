@@ -27,7 +27,7 @@ public class BuildingInfoUICreator
         panel.transform.SetParent(canvas.transform, false);
 
         RectTransform panelRect = panel.AddComponent<RectTransform>();
-        panelRect.sizeDelta = new Vector2(320, 260);
+        panelRect.sizeDelta = new Vector2(320, 280);
         panelRect.anchoredPosition = new Vector2(200, 0);
         panelRect.anchorMin = new Vector2(0.5f, 0.5f);
         panelRect.anchorMax = new Vector2(0.5f, 0.5f);
@@ -60,7 +60,7 @@ public class BuildingInfoUICreator
         descText.fontSize = 12;
         descText.color = new Color(0.8f, 0.8f, 0.8f);
         descText.alignment = TextAlignmentOptions.Center;
-        descText.enableWordWrapping = true;
+        descText.textWrappingMode = TextWrappingModes.Normal;
 
         // Ayraç çizgi
         GameObject line = new GameObject("Divider");
@@ -82,7 +82,7 @@ public class BuildingInfoUICreator
         detailText.fontSize = 12;
         detailText.color = new Color(0.9f, 0.9f, 0.9f);
         detailText.alignment = TextAlignmentOptions.Center;
-        detailText.enableWordWrapping = true;
+        detailText.textWrappingMode = TextWrappingModes.Normal;
 
         // Kapat butonu
         GameObject closeBtn = new GameObject("CloseButton");
@@ -105,6 +105,54 @@ public class BuildingInfoUICreator
         closeTMP.alignment = TextAlignmentOptions.Center;
         closeTMP.color = Color.white;
 
+        // Yükselt butonu
+        GameObject upgradeBtn = new GameObject("UpgradeButton");
+        upgradeBtn.transform.SetParent(panel.transform, false);
+        RectTransform upgradeRect = upgradeBtn.AddComponent<RectTransform>();
+        upgradeRect.sizeDelta = new Vector2(200, 45);
+        upgradeRect.anchoredPosition = new Vector2(0, -160);
+        Image upgradeImage = upgradeBtn.AddComponent<Image>();
+        upgradeImage.color = new Color(0.953f, 0.612f, 0.071f); // #F39C12
+        Button upgradeComp = upgradeBtn.AddComponent<Button>();
+
+        GameObject upgradeTxt = new GameObject("Text");
+        upgradeTxt.transform.SetParent(upgradeBtn.transform, false);
+        RectTransform upgradeTxtRect = upgradeTxt.AddComponent<RectTransform>();
+        upgradeTxtRect.sizeDelta = new Vector2(200, 45);
+        upgradeTxtRect.anchoredPosition = Vector2.zero;
+        TMP_Text upgradeTMP = upgradeTxt.AddComponent<TextMeshProUGUI>();
+        upgradeTMP.text = "YÜKSELt";
+        upgradeTMP.fontSize = 16;
+        upgradeTMP.fontStyle = FontStyles.Bold;
+        upgradeTMP.alignment = TextAlignmentOptions.Center;
+        upgradeTMP.color = Color.white;
+
+        // Maliyet yazısı
+        GameObject costObj = new GameObject("CostText");
+        costObj.transform.SetParent(panel.transform, false);
+        RectTransform costRect = costObj.AddComponent<RectTransform>();
+        costRect.sizeDelta = new Vector2(220, 35);
+        costRect.anchoredPosition = new Vector2(0, -215);
+        TMP_Text costTMP = costObj.AddComponent<TextMeshProUGUI>();
+        costTMP.text = "Maliyet: -";
+        costTMP.fontSize = 12;
+        costTMP.alignment = TextAlignmentOptions.Center;
+        costTMP.color = new Color(0.925f, 0.941f, 0.945f); // #ECF0F1
+
+        // Maksimum seviye yazısı
+        GameObject maxObj = new GameObject("MaxLevelText");
+        maxObj.transform.SetParent(panel.transform, false);
+        RectTransform maxRect = maxObj.AddComponent<RectTransform>();
+        maxRect.sizeDelta = new Vector2(200, 45);
+        maxRect.anchoredPosition = new Vector2(0, -160);
+        TMP_Text maxTMP = maxObj.AddComponent<TextMeshProUGUI>();
+        maxTMP.text = "✓ MAKSİMUM SEVİYE";
+        maxTMP.fontSize = 14;
+        maxTMP.fontStyle = FontStyles.Bold;
+        maxTMP.alignment = TextAlignmentOptions.Center;
+        maxTMP.color = new Color(0.945f, 0.769f, 0.059f); // #F1C40F
+        maxObj.SetActive(false);
+
         // BuildingInfoUI script
         GameObject uiObj = new GameObject("BuildingInfoUI");
         uiObj.transform.SetParent(canvas.transform, false);
@@ -116,6 +164,10 @@ public class BuildingInfoUICreator
         so.FindProperty("descriptionText").objectReferenceValue  = descText;
         so.FindProperty("detailText").objectReferenceValue       = detailText;
         so.FindProperty("closeButton").objectReferenceValue      = closeComp;
+        so.FindProperty("upgradeButton").objectReferenceValue    = upgradeComp;
+        so.FindProperty("upgradeButtonText").objectReferenceValue = upgradeTMP;
+        so.FindProperty("costText").objectReferenceValue         = costTMP;
+        so.FindProperty("maxLevelText").objectReferenceValue     = maxTMP;
         so.ApplyModifiedProperties();
 
         closeComp.onClick.AddListener(() => buildingInfoUI.HidePanel());
