@@ -127,8 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c92690df948f1e34fb4550d5f8ba164c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  maxHealth: 50
-  moveSpeed: 2
-  attackDamage: 10
+  maxHealth: 80
+  moveSpeed: 1.4
+  attackDamage: 8
   attackRange: 1.5
-  attackCooldown: 1.5
+  attackCooldown: 2
