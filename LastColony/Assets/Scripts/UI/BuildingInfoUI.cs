@@ -46,6 +46,14 @@ public class BuildingInfoUI : MonoBehaviour
             Image img = upgradeButton.GetComponent<Image>();
             if (img != null) img.color = upgradeButtonColor;
         }
+
+        // BuildingUpgradeManager sahnede yoksa kod ile oluştur (Awake'te Singleton kurar)
+        if (BuildingUpgradeManager.Instance == null)
+        {
+            GameObject go = new GameObject("BuildingUpgradeManager");
+            go.AddComponent<BuildingUpgradeManager>();
+            Debug.Log("[BuildingInfoUI] BuildingUpgradeManager sahnede yoktu, kod ile oluşturuldu.");
+        }
     }
 
     private void Update()
@@ -57,25 +65,35 @@ public class BuildingInfoUI : MonoBehaviour
 
     public void ShowPanel(BuildingData data)
     {
-        currentData = data;
         hasGridPos = false;
-        buildingNameText.text = data.buildingNameTR;
-        descriptionText.text  = data.description;
-        detailText.text       = BuildDetailText(data);
-        RefreshUpgradeUI();
-        panel.SetActive(true);
+        ApplyPanel(data);
     }
 
     public void ShowPanel(BuildingData data, Vector2Int gridPos)
     {
         currentGridPos = gridPos;
         hasGridPos = true;
+        ApplyPanel(data);
+    }
+
+    private void ApplyPanel(BuildingData data)
+    {
+        // 5. Geçici debug logları
+        Debug.Log($"ShowPanel called. upgradeButton={upgradeButton}, costText={costText}, maxLevelText={maxLevelText}");
+        Debug.Log($"BuildingUpgradeManager.Instance={BuildingUpgradeManager.Instance}");
+
         currentData = data;
+
+        // a. Panel aktif
+        panel.SetActive(true);
+
+        // b. Temel metinler
         buildingNameText.text = data.buildingNameTR;
         descriptionText.text  = data.description;
         detailText.text       = BuildDetailText(data);
+
+        // c. Yükseltme UI
         RefreshUpgradeUI();
-        panel.SetActive(true);
     }
 
     public void HidePanel() => panel.SetActive(false);
@@ -83,22 +101,47 @@ public class BuildingInfoUI : MonoBehaviour
 
     private void RefreshUpgradeUI()
     {
-        var mgr = BuildingUpgradeManager.Instance;
-        if (!hasGridPos || mgr == null)
+        if (upgradeButton == null)
         {
-            if (upgradeButton != null) upgradeButton.gameObject.SetActive(false);
-            if (costText != null)      costText.gameObject.SetActive(false);
-            if (maxLevelText != null)  maxLevelText.gameObject.SetActive(false);
+            Debug.LogWarning("[BuildingInfoUI] upgradeButton referansı bağlı değil (null).");
+            return;
+        }
+
+        var mgr = BuildingUpgradeManager.Instance;
+
+        if (mgr == null)
+        {
+            Debug.LogWarning("BuildingUpgradeManager.Instance is null");
+            // Sistem yüklenmese bile butonu göster, ama devre dışı bırak
+            upgradeButton.gameObject.SetActive(true);
+            upgradeButton.interactable = false;
+            if (costText != null)
+            {
+                costText.gameObject.SetActive(true);
+                costText.text = "Yükseltme sistemi yüklenmedi";
+            }
+            if (maxLevelText != null) maxLevelText.gameObject.SetActive(false);
+            return;
+        }
+
+        if (!hasGridPos)
+        {
+            Debug.LogWarning("[BuildingInfoUI] gridPos iletilmedi, yükseltme bilgisi gösterilemiyor.");
+            upgradeButton.gameObject.SetActive(false);
+            if (costText != null)     costText.gameObject.SetActive(false);
+            if (maxLevelText != null) maxLevelText.gameObject.SetActive(false);
             return;
         }
 
         int tier = mgr.GetTier(currentGridPos);
+        Debug.Log($"[BuildingInfoUI] gridPos={currentGridPos}, tier={tier}, canUpgrade={mgr.CanUpgrade(currentGridPos)}");
 
         if (mgr.CanUpgrade(currentGridPos))
         {
             var cost = mgr.GetUpgradeCost(currentGridPos);
 
-            if (upgradeButton != null) upgradeButton.gameObject.SetActive(true);
+            upgradeButton.gameObject.SetActive(true);
+            upgradeButton.interactable = true;
             if (upgradeButtonText != null)
                 upgradeButtonText.text = $"YÜKSELT (Tier {tier}→{tier + 1})";
             if (costText != null)
@@ -111,12 +154,13 @@ public class BuildingInfoUI : MonoBehaviour
         }
         else
         {
-            if (upgradeButton != null) upgradeButton.gameObject.SetActive(false);
-            if (costText != null)      costText.gameObject.SetActive(false);
+            // Tier 3 (maksimum) veya kayıtsız bina
+            upgradeButton.gameObject.SetActive(false);
+            if (costText != null) costText.gameObject.SetActive(false);
             if (maxLevelText != null)
             {
                 maxLevelText.gameObject.SetActive(true);
-                maxLevelText.text = "Maksimum Seviye";
+                maxLevelText.text = "✓ MAKSİMUM SEVİYE";
             }
         }
     }
