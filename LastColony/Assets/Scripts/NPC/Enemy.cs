@@ -23,6 +23,13 @@ public class Enemy : MonoBehaviour
     float attackTimer;
     float health;
 
+    public void ApplyDifficultyModifiers(float healthMultiplier, float speedMultiplier)
+    {
+        maxHealth = maxHealth * healthMultiplier;
+        moveSpeed = moveSpeed * speedMultiplier;
+        // health Start()'ta maxHealth'e set edilecek
+    }
+
     void Start()
     {
         health = maxHealth;

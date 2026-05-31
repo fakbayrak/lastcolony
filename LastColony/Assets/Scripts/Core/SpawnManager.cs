@@ -54,13 +54,17 @@ public class SpawnManager : MonoBehaviour
         if (currentDay >= nextAttackDay && !attackActive)
         {
             SpawnWave(currentDay);
-            nextAttackDay = currentDay + Mathf.RoundToInt(Random.Range(minDaysBetweenAttacks, maxDaysBetweenAttacks));
+            float minInterval, maxInterval;
+            if (currentDay <= 30)       { minInterval = 8f;  maxInterval = 12f; }
+            else if (currentDay <= 60)  { minInterval = 6f;  maxInterval = 9f;  }
+            else if (currentDay <= 90)  { minInterval = 4f;  maxInterval = 7f;  }
+            else                        { minInterval = 5f;  maxInterval = 8f;  }
+            nextAttackDay = currentDay + Mathf.RoundToInt(Random.Range(minInterval, maxInterval));
         }
     }
 
     void SpawnWave(int currentDay)
     {
-        Debug.Log($"SpawnWave çağrıldı! Gün: {currentDay}");
         if (enemyPrefab == null)
         {
             Debug.LogError("SpawnManager: enemyPrefab atanmamış.");
@@ -69,17 +73,56 @@ public class SpawnManager : MonoBehaviour
 
         attackActive = true;
         OnRaidStarted?.Invoke();
-        int count = Random.Range(minEnemiesPerWave, maxEnemiesPerWave + 1);
+
+        // Güne göre zorluk skalası
+        int count;
+        float healthMultiplier;
+        float speedMultiplier;
+
+        if (currentDay <= 30)
+        {
+            // Yaz: kolay
+            count           = Random.Range(1, 3);
+            healthMultiplier = 0.6f;
+            speedMultiplier  = 0.8f;
+        }
+        else if (currentDay <= 60)
+        {
+            // Sonbahar: orta
+            count           = Random.Range(2, 4);
+            healthMultiplier = 0.9f;
+            speedMultiplier  = 1.0f;
+        }
+        else if (currentDay <= 90)
+        {
+            // Kış: zor
+            count           = Random.Range(3, 6);
+            healthMultiplier = 1.3f;
+            speedMultiplier  = 1.2f;
+        }
+        else
+        {
+            // İlkbahar: orta-zor
+            count           = Random.Range(2, 5);
+            healthMultiplier = 1.1f;
+            speedMultiplier  = 1.1f;
+        }
 
         for (int i = 0; i < count; i++)
         {
             Vector2Int corner = spawnCorners[Random.Range(0, spawnCorners.Count)];
-            Vector3 spawnPos = GridManager.Instance.GridToWorld(corner.x, corner.y);
+            Vector3 spawnPos  = GridManager.Instance.GridToWorld(corner.x, corner.y);
             spawnPos.y += 0.5f;
-            Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+
+            GameObject enemyObj = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+
+            // Can ve hız çarpanlarını uygula
+            Enemy enemy = enemyObj.GetComponent<Enemy>();
+            if (enemy != null)
+                enemy.ApplyDifficultyModifiers(healthMultiplier, speedMultiplier);
         }
 
-        Debug.Log($"Düşman dalgası: {count} düşman spawn oldu, Gün: {currentDay}");
+        Debug.Log($"[SpawnManager] Gün {currentDay}: {count} düşman, canx{healthMultiplier}, hızx{speedMultiplier}");
     }
 
     void HandleEnemyDied(Enemy enemy)
