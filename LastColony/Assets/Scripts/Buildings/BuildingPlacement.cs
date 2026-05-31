@@ -25,6 +25,7 @@ public class BuildingPlacement : MonoBehaviour
     private int costProcessedStone;
     private int costMetal;
     private bool isPlacingBuilding;
+    private string currentBuildingType = "Generic";
     private List<PlacedBuildingRecord> placedBuildings = new List<PlacedBuildingRecord>();
     public List<PlacedBuildingRecord> GetPlacedBuildings() => placedBuildings;
 
@@ -112,7 +113,7 @@ public class BuildingPlacement : MonoBehaviour
         {
             gridX = gridPos.x,
             gridY = gridPos.y,
-            buildingType = "Generic",
+            buildingType = currentBuildingType,
             tier = 1
         });
 
@@ -142,6 +143,11 @@ public class BuildingPlacement : MonoBehaviour
     public void SetActivePrefab(GameObject prefab)
     {
         currentPrefab = prefab;
+    }
+
+    public void SetBuildingType(string buildingType)
+    {
+        currentBuildingType = buildingType;
     }
 
     public void SetBuildingCost(int lumber, int processedStone, int metal)

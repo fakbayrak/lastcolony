@@ -85,6 +85,7 @@ public class BuildingToolbar : MonoBehaviour
         }
 
         buildingPlacement.SetActivePrefab(data.prefab);
+        buildingPlacement.SetBuildingType(data.buildingName);
         buildingPlacement.SetBuildingCost(data.costLumber, data.costProcessedStone, data.costMetal);
         buildingPlacement.EnterPlacementMode();
 
