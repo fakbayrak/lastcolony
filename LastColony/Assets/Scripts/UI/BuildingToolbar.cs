@@ -73,6 +73,7 @@ public class BuildingToolbar : MonoBehaviour
         BuildingData data = buildings[index];
 
         var inventory = resourceManager.GetInventory();
+        Debug.Log($"[Toolbar] {data.buildingNameTR} tıklandı. Lumber={( inventory.ContainsKey("Lumber") ? inventory["Lumber"] : 0)}, Gerekli={data.costLumber}");
         bool canAfford =
             (inventory.ContainsKey("Lumber")         ? inventory["Lumber"]         : 0) >= data.costLumber &&
             (inventory.ContainsKey("ProcessedStone")  ? inventory["ProcessedStone"]  : 0) >= data.costProcessedStone &&
