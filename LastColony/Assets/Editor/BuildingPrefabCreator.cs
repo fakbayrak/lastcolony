@@ -6,14 +6,13 @@ public class BuildingPrefabCreator
     [MenuItem("LastColony/Create Building Prefabs")]
     public static void CreateAllBuildingPrefabs()
     {
-        // Kule_Prefab dokunulmuyor — TowerVisual zaten mevcut.
+        // Atolye_Prefab ve Kule_Prefab dokunulmuyor.
         CreateBuildingPrefab<BarakaVisual>("Baraka_Prefab");
         CreateBuildingPrefab<DepoVisual>("Depo_Prefab");
-        CreateBuildingPrefab<AtolyeVisual>("Atolye_Prefab");
 
         AssetDatabase.SaveAssets();
         AssetDatabase.Refresh();
-        Debug.Log("[BuildingPrefabCreator] 3 bina prefabı (Baraka, Depo, Atolye) 3D görselle oluşturuldu.");
+        Debug.Log("[BuildingPrefabCreator] 2 bina prefabı (Baraka, Depo) 3D görselle oluşturuldu.");
     }
 
     private static void CreateBuildingPrefab<T>(string prefabName) where T : Component
