@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
 public class BuildingClickDetector : MonoBehaviour
 {
@@ -10,7 +11,13 @@ public class BuildingClickDetector : MonoBehaviour
     private void Update()
     {
         if (Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            // Pointer bir UI elemanının üzerindeyse (örn. yükselt butonu) devreye girme
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                return;
+
             CheckClick();
+        }
     }
 
     private void CheckClick()
