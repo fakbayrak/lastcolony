@@ -104,3 +104,31 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# ─────────────────────────────────────────────────────────────
+# This repo's Unity project lives in the /LastColony subfolder,
+# so the anchored patterns above (e.g. /[Ll]ibrary/) never reach
+# it. Re-declare the generated folders anchored to /LastColony.
+# ─────────────────────────────────────────────────────────────
+/LastColony/[Ll]ibrary/
+/LastColony/[Tt]emp/
+/LastColony/[Oo]bj/
+/LastColony/[Bb]uild/
+/LastColony/[Bb]uilds/
+/LastColony/[Ll]ogs/
+/LastColony/[Uu]ser[Ss]ettings/
+/LastColony/[Mm]emoryCaptures/
+/LastColony/[Rr]ecordings/
+
+# Unity crash-recovery dump — not real project content
+/LastColony/[Aa]ssets/_Recovery/
+/LastColony/[Aa]ssets/_Recovery.meta
+
+# ─── Root-level, non-Unity junk ───
+# Stray npm project (package.json only declares npm itself)
+/node_modules/
+/package.json
+/package-lock.json
+
+# Claude Code local settings & worktrees (machine-specific)
+.claude/
