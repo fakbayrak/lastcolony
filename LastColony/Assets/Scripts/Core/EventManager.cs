@@ -204,6 +204,40 @@ public class EventManager : MonoBehaviour
                 Debug.Log("[Event] Tuccar: Stone -20, Lumber +20");
             }
         });
+
+        // 7. Kitlik
+        eventPool.Add(new GameEvent
+        {
+            Title = "Kitlik",
+            Description = "Depolardaki yiyecekler bozuldu.\nKoloni erzagi azaldi.",
+            RequiresChoice = false,
+            OnAutoResolve = () =>
+            {
+                int lostFood = 30;
+                if (ResourceManager.Instance != null)
+                    ResourceManager.Instance.RemoveResource(ResourceType.Food, lostFood);
+            }
+        });
+
+        // 8. Hasat Bollugu
+        eventPool.Add(new GameEvent
+        {
+            Title = "Hasat Bollugu",
+            Description = "Bu mevsim hasat beklenenden iyi gecti.\nFazla erzak var, ne yapacaksin?",
+            RequiresChoice = true,
+            ChoiceAText = "Erzagi depola\n(+60 Yiyecek)",
+            ChoiceBText = "Komsuya sat\n(+30 Kereste)",
+            OnChoiceA = () =>
+            {
+                if (ResourceManager.Instance != null)
+                    ResourceManager.Instance.AddResource(ResourceType.Food, 60);
+            },
+            OnChoiceB = () =>
+            {
+                if (ResourceManager.Instance != null)
+                    ResourceManager.Instance.AddResource(ResourceType.Lumber, 30);
+            }
+        });
     }
 
     void SpawnNewNPC()
