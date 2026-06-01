@@ -7,7 +7,9 @@ public enum ResourceType
     // Ham maddeler
     Wood, Stone, MetalOre,
     // İşlenmiş maddeler
-    Lumber, ProcessedStone, Metal
+    Lumber, ProcessedStone, Metal,
+    // Tüketim
+    Food
 }
 
 public class ResourceManager : MonoBehaviour
@@ -34,6 +36,7 @@ public class ResourceManager : MonoBehaviour
         inventory[ResourceType.Lumber]        = 50;
         inventory[ResourceType.ProcessedStone] = 30;
         inventory[ResourceType.Metal]         = 10;
+        inventory[ResourceType.Food]          = 50;
     }
 
     public void AddResource(ResourceType type, int amount)
@@ -90,5 +93,11 @@ public class ResourceManager : MonoBehaviour
     {
         if (System.Enum.TryParse<ResourceType>(key, out ResourceType type))
             RemoveResource(type, amount);
+    }
+
+    public void AddResource(string key, int amount)
+    {
+        if (System.Enum.TryParse<ResourceType>(key, out ResourceType type))
+            AddResource(type, amount);
     }
 }

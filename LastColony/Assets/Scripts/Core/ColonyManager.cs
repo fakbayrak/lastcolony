@@ -1,6 +1,5 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ColonyManager : MonoBehaviour
 {
@@ -11,12 +10,16 @@ public class ColonyManager : MonoBehaviour
     [SerializeField] private TimeController timeController;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private TMP_Text gameOverText;
+    [SerializeField] private DayNightCycle dayNightCycle;
+    [SerializeField] private SeasonManager seasonManager;
 
     private bool colonyCollapsed = false;
     private float hungerDamageInterval = 5f;
     private float hungerDamageTimer = 0f;
     private float hungerDamageAmount = 10f;
     private float starvationThreshold = 10f;
+    private float foodPerNPCPerDay = 2f;
+    private float foodProductionPerFarm = 5f;
 
     private void Awake()
     {
@@ -27,6 +30,13 @@ public class ColonyManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+
+        DayNightCycle.OnDayPassed += OnDayPassed;
+    }
+
+    private void OnDestroy()
+    {
+        DayNightCycle.OnDayPassed -= OnDayPassed;
     }
 
     private void Update()
@@ -44,6 +54,61 @@ public class ColonyManager : MonoBehaviour
         CheckColonyStatus();
     }
 
+    private void OnDayPassed(int day)
+    {
+        if (colonyCollapsed) return;
+        ConsumeFood();
+        ProduceFood();
+        ApplyHungerFromFood();
+    }
+
+    private void ConsumeFood()
+    {
+        if (npcManager == null || resourceManager == null) return;
+        int aliveNPCs = 0;
+        foreach (NPC npc in npcManager.GetAllNPCs())
+        {
+            if (npc != null && npc.Health > 0f) aliveNPCs++;
+        }
+        float multiplier = (seasonManager != null) ? seasonManager.ConsumptionMultiplier : 1f;
+        float totalConsumption = aliveNPCs * foodPerNPCPerDay * multiplier;
+        resourceManager.RemoveResource("Food", (int)totalConsumption);
+    }
+
+    private void ProduceFood()
+    {
+        if (resourceManager == null) return;
+        int farmCount = CountBuildings("Tarla");
+        if (farmCount <= 0) return;
+        float multiplier = (seasonManager != null) ? seasonManager.ProductionMultiplier : 1f;
+        float totalProduction = farmCount * foodProductionPerFarm * multiplier;
+        resourceManager.AddResource("Food", (int)totalProduction);
+    }
+
+    private int CountBuildings(string buildingType)
+    {
+        if (BuildingUpgradeManager.Instance == null) return 0;
+        return BuildingUpgradeManager.Instance.CountBuildingsOfType(buildingType);
+    }
+
+    private void ApplyHungerFromFood()
+    {
+        if (resourceManager == null || npcManager == null) return;
+        float currentFood = resourceManager.GetResource("Food");
+        foreach (NPC npc in npcManager.GetAllNPCs())
+        {
+            if (npc == null || npc.Health <= 0f) continue;
+            if (currentFood <= 0f)
+            {
+                npc.Hunger = Mathf.Max(0f, npc.Hunger - 20f);
+            }
+            else
+            {
+                npc.Hunger = Mathf.Min(100f, npc.Hunger + 5f);
+            }
+        }
+    }
+
     private void ApplyStarvationDamage()
     {
         var allNPCs = npcManager.GetAllNPCs();
@@ -53,7 +118,6 @@ public class ColonyManager : MonoBehaviour
             if (npc.Hunger < starvationThreshold)
             {
                 npc.TakeDamage(hungerDamageAmount);
-                Debug.Log($"[ColonyManager] NPC aç kalıyor, hasar aldı. Sağlık: {npc.Health}");
             }
         }
     }
@@ -77,7 +141,6 @@ public class ColonyManager : MonoBehaviour
     private void TriggerColonyCollapse()
     {
         colonyCollapsed = true;
-        Debug.Log("[ColonyManager] Koloni çöktü.");
 
         if (timeController != null)
             timeController.Pause();

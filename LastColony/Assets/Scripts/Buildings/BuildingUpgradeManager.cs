@@ -38,6 +38,16 @@ public class BuildingUpgradeManager : MonoBehaviour
         return buildingTypes.ContainsKey(gridPos) ? buildingTypes[gridPos] : "";
     }
 
+    public int CountBuildingsOfType(string buildingType)
+    {
+        int count = 0;
+        foreach (string type in buildingTypes.Values)
+        {
+            if (type == buildingType) count++;
+        }
+        return count;
+    }
+
     public bool CanUpgrade(Vector2Int gridPos)
     {
         return buildingTiers.ContainsKey(gridPos) && buildingTiers[gridPos] < 3;

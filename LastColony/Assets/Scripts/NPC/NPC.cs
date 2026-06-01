@@ -14,7 +14,7 @@ public class NPC : MonoBehaviour
     public event Action OnDeath;
 
     public float Health       => health;
-    public float Hunger       => hunger;
+    public float Hunger       { get => hunger; set => hunger = Mathf.Clamp(value, 0f, 100f); }
     public float Energy       => energy;
     public NPCState CurrentState => state;
 
