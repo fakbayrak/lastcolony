@@ -51,7 +51,6 @@ public class BuildingInfoUI : MonoBehaviour
         {
             GameObject go = new GameObject("BuildingUpgradeManager");
             go.AddComponent<BuildingUpgradeManager>();
-            Debug.Log("[BuildingInfoUI] BuildingUpgradeManager sahnede yoktu, kod ile oluşturuldu.");
         }
     }
 
@@ -61,7 +60,6 @@ public class BuildingInfoUI : MonoBehaviour
         {
             upgradeButton.onClick.RemoveAllListeners();
             upgradeButton.onClick.AddListener(OnUpgradeClicked);
-            Debug.Log("Upgrade button listener bound in OnEnable");
         }
     }
 
@@ -87,10 +85,6 @@ public class BuildingInfoUI : MonoBehaviour
 
     private void ApplyPanel(BuildingData data)
     {
-        // 5. Geçici debug logları
-        Debug.Log($"ShowPanel called. upgradeButton={upgradeButton}, costText={costText}, maxLevelText={maxLevelText}");
-        Debug.Log($"BuildingUpgradeManager.Instance={BuildingUpgradeManager.Instance}");
-
         currentData = data;
 
         // a. Panel aktif
@@ -103,12 +97,6 @@ public class BuildingInfoUI : MonoBehaviour
 
         // c. Yükseltme UI
         RefreshUpgradeUI();
-
-        if (upgradeButton != null)
-        {
-            Debug.Log($"upgradeButton.interactable={upgradeButton.interactable}");
-            Debug.Log($"upgradeButton.GetComponent<Image>().raycastTarget={upgradeButton.GetComponent<Image>()?.raycastTarget}");
-        }
     }
 
     public void HidePanel() => panel.SetActive(false);
@@ -118,7 +106,7 @@ public class BuildingInfoUI : MonoBehaviour
     {
         if (upgradeButton == null)
         {
-            Debug.LogWarning("[BuildingInfoUI] upgradeButton referansı bağlı değil (null).");
+            // Debug.LogWarning("[BuildingInfoUI] upgradeButton referansı bağlı değil (null).");
             return;
         }
 
@@ -126,7 +114,7 @@ public class BuildingInfoUI : MonoBehaviour
 
         if (mgr == null)
         {
-            Debug.LogWarning("BuildingUpgradeManager.Instance is null");
+            // Debug.LogWarning("BuildingUpgradeManager.Instance is null");
             // Sistem yüklenmese bile butonu göster, ama devre dışı bırak
             upgradeButton.gameObject.SetActive(true);
             upgradeButton.interactable = false;
@@ -141,7 +129,7 @@ public class BuildingInfoUI : MonoBehaviour
 
         if (!hasGridPos)
         {
-            Debug.LogWarning("[BuildingInfoUI] gridPos iletilmedi, yükseltme bilgisi gösterilemiyor.");
+            // Debug.LogWarning("[BuildingInfoUI] gridPos iletilmedi, yükseltme bilgisi gösterilemiyor.");
             upgradeButton.gameObject.SetActive(false);
             if (costText != null)     costText.gameObject.SetActive(false);
             if (maxLevelText != null) maxLevelText.gameObject.SetActive(false);
@@ -149,7 +137,6 @@ public class BuildingInfoUI : MonoBehaviour
         }
 
         int tier = mgr.GetTier(currentGridPos);
-        Debug.Log($"[BuildingInfoUI] gridPos={currentGridPos}, tier={tier}, canUpgrade={mgr.CanUpgrade(currentGridPos)}");
 
         if (mgr.CanUpgrade(currentGridPos))
         {
@@ -182,38 +169,24 @@ public class BuildingInfoUI : MonoBehaviour
 
     private void OnUpgradeClicked()
     {
-        Debug.Log("Upgrade button clicked!");
-        Debug.Log($"currentGridPos={currentGridPos}");
-        Debug.Log($"BuildingUpgradeManager.Instance={BuildingUpgradeManager.Instance}");
-
         var mgr = BuildingUpgradeManager.Instance;
         if (!hasGridPos || mgr == null)
         {
-            Debug.LogWarning($"[BuildingInfoUI] Yükseltme yapılamıyor. hasGridPos={hasGridPos}, mgr={mgr}");
+            // Debug.LogWarning($"[BuildingInfoUI] Yükseltme yapılamıyor. hasGridPos={hasGridPos}, mgr={mgr}");
             return;
         }
 
-        var cost = mgr.GetUpgradeCost(currentGridPos);
-        Debug.Log($"Upgrade cost: lumber={cost.lumber}, stone={cost.processedStone}, metal={cost.metal}");
-        Debug.Log($"Current lumber={ResourceManager.Instance.GetResource("Lumber")}, " +
-                  $"stone={ResourceManager.Instance.GetResource("ProcessedStone")}, " +
-                  $"metal={ResourceManager.Instance.GetResource("Metal")}");
-
         bool success = mgr.TryUpgrade(currentGridPos);
-        Debug.Log($"TryUpgrade result={success}");
 
         if (success)
         {
             int newTier = mgr.GetTier(currentGridPos);
-            Debug.Log($"New tier={newTier}");
 
             GameObject building = GridManager.Instance.GetBuildingAt(currentGridPos);
-            Debug.Log($"Building found={building}");
 
             if (building != null)
             {
                 IBuildingVisual visual = building.GetComponent<IBuildingVisual>();
-                Debug.Log($"Visual found={visual}");
                 if (visual != null) visual.UpgradeTo(newTier);
             }
             RefreshUpgradeUI();
