@@ -19,6 +19,12 @@ public class BuildingToolbar : MonoBehaviour
 
     private void Start()
     {
+        if (buildings == null || buildings.Length == 0)
+        {
+            Debug.LogWarning("[BuildingToolbar] Buildings dizisi Inspector'dan atanmadı.");
+            return;
+        }
+
         BuildButtons();
     }
 
