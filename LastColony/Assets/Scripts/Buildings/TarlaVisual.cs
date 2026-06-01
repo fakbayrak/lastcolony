@@ -82,10 +82,11 @@ public class TarlaVisual : MonoBehaviour, IBuildingVisual
     private void SetColor(GameObject obj, Color color)
     {
         Renderer r = obj.GetComponent<Renderer>();
-        if (r != null)
-        {
-            r.material = new Material(Shader.Find("Standard"));
-            r.material.color = color;
-        }
+        if (r == null) return;
+        Material mat = new Material(Shader.Find("Standard"));
+        mat.color = color;
+        mat.SetFloat("_Glossiness", 0.2f);
+        mat.SetFloat("_Metallic", 0.0f);
+        r.material = mat;
     }
 }
