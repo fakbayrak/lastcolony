@@ -13,13 +13,12 @@ public class ColonyManager : MonoBehaviour
     [SerializeField] private DayNightCycle dayNightCycle;
     [SerializeField] private SeasonManager seasonManager;
 
+    [SerializeField] private float foodPerNPCPerDay = 1f;
+    [SerializeField] private float foodProductionPerFarm = 10f;
+    [SerializeField] private float starvationThreshold = 10f;
+    [SerializeField] private float hungerDamageAmount = 10f;
+
     private bool colonyCollapsed = false;
-    private float hungerDamageInterval = 5f;
-    private float hungerDamageTimer = 0f;
-    private float hungerDamageAmount = 10f;
-    private float starvationThreshold = 10f;
-    private float foodPerNPCPerDay = 2f;
-    private float foodProductionPerFarm = 5f;
 
     private void Awake()
     {
@@ -43,14 +42,6 @@ public class ColonyManager : MonoBehaviour
     {
         if (colonyCollapsed) return;
         if (timeController != null && timeController.IsPaused) return;
-
-        hungerDamageTimer += Time.deltaTime;
-        if (hungerDamageTimer >= hungerDamageInterval)
-        {
-            hungerDamageTimer = 0f;
-            ApplyStarvationDamage();
-        }
-
         CheckColonyStatus();
     }
 
@@ -101,23 +92,12 @@ public class ColonyManager : MonoBehaviour
             if (currentFood <= 0f)
             {
                 npc.Hunger = Mathf.Max(0f, npc.Hunger - 20f);
+                if (npc.Hunger < starvationThreshold)
+                    npc.TakeDamage(hungerDamageAmount);
             }
             else
             {
-                npc.Hunger = Mathf.Min(100f, npc.Hunger + 5f);
-            }
-        }
-    }
-
-    private void ApplyStarvationDamage()
-    {
-        var allNPCs = npcManager.GetAllNPCs();
-        foreach (NPC npc in allNPCs)
-        {
-            if (npc == null) continue;
-            if (npc.Hunger < starvationThreshold)
-            {
-                npc.TakeDamage(hungerDamageAmount);
+                npc.Hunger = Mathf.Min(100f, npc.Hunger + 10f);
             }
         }
     }
