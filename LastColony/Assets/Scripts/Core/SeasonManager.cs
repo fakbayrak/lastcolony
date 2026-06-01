@@ -24,6 +24,7 @@ public class SeasonManager : MonoBehaviour
     public int DayInSeason => currentSeasonDay;
 
     public static event Action<Season> OnSeasonChanged;
+    public static event System.Action OnYearCompleted;
 
     void Awake()
     {
@@ -75,6 +76,11 @@ public class SeasonManager : MonoBehaviour
             ApplyMultipliers(CurrentSeason);
             Debug.Log($"Mevsim değişti: {CurrentSeason}, Gün: {totalDaysPassed}");
             OnSeasonChanged?.Invoke(CurrentSeason);
+
+            if (CurrentSeason == Season.Summer && totalDaysPassed > seasonLengthInDays)
+            {
+                OnYearCompleted?.Invoke();
+            }
         }
     }
 

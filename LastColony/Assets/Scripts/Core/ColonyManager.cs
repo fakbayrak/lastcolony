@@ -9,6 +9,7 @@ public class ColonyManager : MonoBehaviour
     [SerializeField] private ResourceManager resourceManager;
     [SerializeField] private TimeController timeController;
     [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject victoryPanel;
     [SerializeField] private TMP_Text gameOverText;
     [SerializeField] private DayNightCycle dayNightCycle;
     [SerializeField] private SeasonManager seasonManager;
@@ -31,11 +32,13 @@ public class ColonyManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
 
         DayNightCycle.OnDayPassed += OnDayPassed;
+        SeasonManager.OnYearCompleted += CheckVictory;
     }
 
     private void OnDestroy()
     {
         DayNightCycle.OnDayPassed -= OnDayPassed;
+        SeasonManager.OnYearCompleted -= CheckVictory;
     }
 
     private void Update()
@@ -130,6 +133,35 @@ public class ColonyManager : MonoBehaviour
 
         if (gameOverText != null)
             gameOverText.text = "KOLONİ ÇÖKTÜ\n\nTüm koloniciler hayatını kaybetti.";
+    }
+
+    private void CheckVictory()
+    {
+        if (colonyCollapsed) return;
+
+        var allNPCs = npcManager.GetAllNPCs();
+        int aliveCount = 0;
+        foreach (NPC npc in allNPCs)
+        {
+            if (npc != null && npc.Health > 0f)
+                aliveCount++;
+        }
+
+        if (aliveCount >= 12)
+            TriggerVictory(aliveCount);
+        else
+            TriggerColonyCollapse();
+    }
+
+    private void TriggerVictory(int survivors)
+    {
+        colonyCollapsed = true;
+        if (timeController != null)
+            timeController.Pause();
+        if (victoryPanel != null)
+            victoryPanel.SetActive(true);
+        if (gameOverText != null)
+            gameOverText.text = $"KOLONİ HAYATTA!\n\n{survivors} kolonici ile 1 yılı tamamladın.";
     }
 
     public bool IsCollapsed => colonyCollapsed;

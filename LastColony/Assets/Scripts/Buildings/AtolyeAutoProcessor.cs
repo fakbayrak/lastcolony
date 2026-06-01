@@ -19,31 +19,22 @@ public class AtolyeAutoProcessor : MonoBehaviour
     {
         if (!HasAtolye()) return;
 
-        ResourceType[] order = { ResourceType.Wood, ResourceType.Stone, ResourceType.MetalOre };
-        int produced = 0;
+        int totalProduced = 0;
+        ResourceType[] recipes = { ResourceType.Wood, ResourceType.Stone, ResourceType.MetalOre };
 
-        // Günlük çıktı maxUnitsPerDay birimle sınırlı; bütçeye sığan reçeteler işlenir
-        bool processedSomething = true;
-        while (produced < maxUnitsPerDay && processedSomething)
+        foreach (ResourceType raw in recipes)
         {
-            processedSomething = false;
-            foreach (ResourceType raw in order)
+            int outAmount = ResourceChain.Instance.GetOutputAmount(raw);
+            if (outAmount <= 0) continue;
+
+            int produced = 0;
+            while (produced + outAmount <= maxUnitsPerDay)
             {
-                if (produced >= maxUnitsPerDay) break;
-
-                int outAmount = ResourceChain.Instance.GetOutputAmount(raw);
-                if (outAmount <= 0) continue;
-                if (produced + outAmount > maxUnitsPerDay) continue; // bu reçete bütçeyi aşar
-
-                if (ResourceChain.Instance.Process(raw))
-                {
-                    produced += outAmount;
-                    processedSomething = true;
-                }
+                if (!ResourceChain.Instance.Process(raw)) break;
+                produced += outAmount;
             }
+            totalProduced += produced;
         }
-
-        Debug.Log($"[AtolyeAutoProcessor] Gün {day}: {produced}/{maxUnitsPerDay} birim işlendi.");
     }
 
     private bool HasAtolye()
