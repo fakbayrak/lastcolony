@@ -38,6 +38,7 @@ public class BuildingClickDetector : MonoBehaviour
                 BuildingData data = FindBuildingData(record.buildingType);
                 if (data != null)
                 {
+                    if (BuildingInfoUI.Instance == null) return;
                     if (BuildingInfoUI.Instance.IsVisible())
                         BuildingInfoUI.Instance.HidePanel();
                     else
@@ -56,6 +57,7 @@ public class BuildingClickDetector : MonoBehaviour
     {
         foreach (var data in buildingDataList)
         {
+            if (data == null) continue;
             if (data.buildingName == buildingName)
                 return data;
         }
