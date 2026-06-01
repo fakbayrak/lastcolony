@@ -161,6 +161,7 @@ public class NPC : MonoBehaviour
 
     public void SetIdle()
     {
+        currentResourceNode = null;
         assignedBuildingType = "";
         state = NPCState.Idle;
     }

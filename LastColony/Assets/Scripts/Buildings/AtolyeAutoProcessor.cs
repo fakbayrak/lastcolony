@@ -3,6 +3,7 @@ using UnityEngine;
 public class AtolyeAutoProcessor : MonoBehaviour
 {
     [SerializeField] private BuildingPlacement buildingPlacement;
+    [SerializeField] private int maxUnitsPerDay = 5;
 
     private void OnEnable()
     {
@@ -18,27 +19,31 @@ public class AtolyeAutoProcessor : MonoBehaviour
     {
         if (!HasAtolye()) return;
 
-        int processCount = HasAssignedNPC() ? 2 : 1;
+        ResourceType[] order = { ResourceType.Wood, ResourceType.Stone, ResourceType.MetalOre };
+        int produced = 0;
 
-        for (int i = 0; i < processCount; i++)
+        // Günlük çıktı maxUnitsPerDay birimle sınırlı; bütçeye sığan reçeteler işlenir
+        bool processedSomething = true;
+        while (produced < maxUnitsPerDay && processedSomething)
         {
-            ResourceChain.Instance.Process(ResourceType.Wood);
-            ResourceChain.Instance.Process(ResourceType.Stone);
-            ResourceChain.Instance.Process(ResourceType.MetalOre);
+            processedSomething = false;
+            foreach (ResourceType raw in order)
+            {
+                if (produced >= maxUnitsPerDay) break;
+
+                int outAmount = ResourceChain.Instance.GetOutputAmount(raw);
+                if (outAmount <= 0) continue;
+                if (produced + outAmount > maxUnitsPerDay) continue; // bu reçete bütçeyi aşar
+
+                if (ResourceChain.Instance.Process(raw))
+                {
+                    produced += outAmount;
+                    processedSomething = true;
+                }
+            }
         }
 
-        Debug.Log($"[AtolyeAutoProcessor] Gün {day}: {processCount}x işleme tamamlandı.");
-    }
-
-    private bool HasAssignedNPC()
-    {
-        foreach (NPC npc in NPCManager.Instance.GetAllNPCs())
-        {
-            if (npc.CurrentState == NPCState.AssignedToBuilding &&
-                npc.AssignedBuildingType == "Atolye")
-                return true;
-        }
-        return false;
+        Debug.Log($"[AtolyeAutoProcessor] Gün {day}: {produced}/{maxUnitsPerDay} birim işlendi.");
     }
 
     private bool HasAtolye()

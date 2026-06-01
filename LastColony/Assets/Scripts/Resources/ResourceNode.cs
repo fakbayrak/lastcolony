@@ -4,7 +4,7 @@ using UnityEngine;
 public class ResourceNode : MonoBehaviour
 {
     [SerializeField] private ResourceType resourceType;
-    [SerializeField] private int totalAmount = 300;
+    [SerializeField] private int totalAmount = 500;
     [SerializeField] private int gatherAmountPerTrip = 8;
     [SerializeField] private float gatherDuration = 4f;
 

@@ -32,6 +32,12 @@ public class ResourceChain : MonoBehaviour
         };
     }
 
+    // Bir reçetenin günlük üretim bütçesi için çıktı miktarını döndürür (reçete yoksa 0)
+    public int GetOutputAmount(ResourceType rawType)
+    {
+        return recipes.TryGetValue(rawType, out Recipe recipe) ? recipe.outputAmount : 0;
+    }
+
     public bool CanProcess(ResourceType rawType)
     {
         if (!recipes.TryGetValue(rawType, out Recipe recipe))
