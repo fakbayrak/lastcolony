@@ -26,13 +26,13 @@ public class NPC : MonoBehaviour
     public string AssignedBuildingType => assignedBuildingType;
     private float energyRestoreMultiplier = 1f;
 
-    private const float HungerPerSecond      = 0.5f;
+    private const float HungerPerSecond      = 0.02f;
     private const float EnergyDrainPerSecond  = 10f;
     private const float EnergyRestorePerSecond = 15f;
     private const float MoveStepDelay         = 0.3f;
-    private const float RestEnergyThreshold   = 20f;
-    private const float ReadyEnergyThreshold  = 80f;
-    private const float HungerWorkBlock       = 80f;
+    private const float RestEnergyThreshold   = 15f;
+    private const float ReadyEnergyThreshold  = 60f;
+    private const float HungerWorkBlock       = 90f;
 
     private void Awake()
     {
@@ -64,11 +64,12 @@ public class NPC : MonoBehaviour
 
                 if (energy < RestEnergyThreshold)
                 {
+                    currentResourceNode = null;
                     SetState(NPCState.Resting);
                     break;
                 }
                 if (hunger >= HungerWorkBlock)
-                    SetState(NPCState.Idle);
+                    SetIdle();
                 break;
 
             case NPCState.Resting:
