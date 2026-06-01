@@ -4,7 +4,6 @@ using UnityEngine;
 public class ResourceNode : MonoBehaviour
 {
     [SerializeField] private ResourceType resourceType;
-    [SerializeField] private int totalAmount = 500;
     [SerializeField] private int gatherAmountPerTrip = 8;
     [SerializeField] private float gatherDuration = 4f;
 
@@ -12,7 +11,8 @@ public class ResourceNode : MonoBehaviour
 
     public bool IsGathering { get; private set; }
 
-    public bool IsAvailable() => totalAmount > 0;
+    // Node artık sonsuz kaynak; her zaman toplanabilir
+    public bool IsAvailable() => true;
 
     // NPC bu node'a varıp Working state'e geçince çağrılır.
     // Coroutine NPC'de değil node'da çalışır; böylece NPC ölse bile IsGathering takılı kalmaz.
@@ -27,29 +27,16 @@ public class ResourceNode : MonoBehaviour
     {
         IsGathering = true;
 
-        // NPC bu node'da çalışmaya devam ettiği sürece periyodik olarak topla
-        while (totalAmount > 0 && npc != null && npc.Health > 0 && npc.CurrentState == NPCState.Working)
+        // NPC bu node'da çalışmaya devam ettiği sürece periyodik olarak topla — node tükenmez
+        while (npc != null && npc.Health > 0 && npc.CurrentState == NPCState.Working)
         {
             yield return new WaitForSeconds(gatherDuration);
 
             if (npc == null || npc.Health <= 0 || npc.CurrentState != NPCState.Working)
                 break;
 
-            int amount = Mathf.Min(gatherAmountPerTrip, totalAmount);
-            totalAmount -= amount;
-
-            ResourceManager.Instance.AddResource(resourceType, amount);
-            Debug.Log($"[ResourceNode] {npc.name} topladı: {amount}x {resourceType} (kalan: {totalAmount})");
-
-            if (totalAmount <= 0)
-            {
-                Debug.Log($"[ResourceNode] {resourceType} tükendi.");
-                if (npc != null && npc.Health > 0)
-                    npc.SetIdle();
-                IsGathering = false;
-                Destroy(gameObject);
-                yield break;
-            }
+            ResourceManager.Instance.AddResource(resourceType, gatherAmountPerTrip);
+            Debug.Log($"[ResourceNode] {npc.name} topladı: {gatherAmountPerTrip}x {resourceType} (sonsuz kaynak)");
         }
 
         IsGathering = false;
