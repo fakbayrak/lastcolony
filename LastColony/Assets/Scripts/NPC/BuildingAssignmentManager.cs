@@ -80,7 +80,7 @@ public class BuildingAssignmentManager : MonoBehaviour
                     defenseTower.ApplyNPCBonus();
                 break;
             case "Baraka":
-                npc.ApplyBarakaBonus();
+                // Baraka bonusu enerji sistemiyle birlikte kaldırıldı
                 break;
             // Depo bonusları NPC üzerinden uygulanır
         }
@@ -88,7 +88,6 @@ public class BuildingAssignmentManager : MonoBehaviour
 
     private void ResetBarakaBonus()
     {
-        foreach (NPC npc in NPCManager.Instance.GetAllNPCs())
-            npc.ResetEnergyBonus();
+        // Enerji sistemi kaldırıldı; sıfırlanacak bonus yok
     }
 }

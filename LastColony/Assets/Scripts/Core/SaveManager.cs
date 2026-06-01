@@ -7,7 +7,6 @@ public class NPCSaveData
 {
     public float health;
     public float hunger;
-    public float energy;
     public int gridX;
     public int gridY;
 }
@@ -100,7 +99,6 @@ public class SaveManager : MonoBehaviour
             {
                 health = npc.Health,
                 hunger = npc.Hunger,
-                energy = npc.Energy,
                 gridX = gridPos.x,
                 gridY = gridPos.y
             });

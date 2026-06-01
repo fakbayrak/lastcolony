@@ -3,19 +3,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum NPCState { Idle, Moving, Working, Resting, Dead, AssignedToBuilding }
+public enum NPCState { Idle, Moving, Working, Dead, AssignedToBuilding }
 
 public class NPC : MonoBehaviour
 {
     [SerializeField] private float health = 100f;
     [SerializeField] private float hunger = 0f;
-    [SerializeField] private float energy = 100f;
 
     public event Action OnDeath;
 
     public float Health       => health;
     public float Hunger       { get => hunger; set => hunger = Mathf.Clamp(value, 0f, 100f); }
-    public float Energy       => energy;
     public NPCState CurrentState => state;
 
     private NPCState state = NPCState.Idle;
@@ -24,15 +22,9 @@ public class NPC : MonoBehaviour
     private ResourceNode currentResourceNode;
     private string assignedBuildingType = "";
     public string AssignedBuildingType => assignedBuildingType;
-    private float energyRestoreMultiplier = 1f;
 
-    private const float HungerPerSecond      = 0.02f;
-    private const float EnergyDrainPerSecond  = 10f;
-    private const float EnergyRestorePerSecond = 15f;
-    private const float MoveStepDelay         = 0.3f;
-    private const float RestEnergyThreshold   = 15f;
-    private const float ReadyEnergyThreshold  = 60f;
-    private const float HungerWorkBlock       = 90f;
+    private const float MoveStepDelay   = 0.3f;
+    private const float HungerWorkBlock = 90f;
 
     private void Awake()
     {
@@ -44,51 +36,19 @@ public class NPC : MonoBehaviour
     {
         if (TimeController.Instance != null && TimeController.Instance.IsPaused) return;
 
-        hunger = Mathf.Min(100f, hunger + HungerPerSecond * Time.deltaTime);
-
         UpdateStateMachine();
-
     }
 
     private void UpdateStateMachine()
     {
         switch (state)
         {
-            case NPCState.Idle:
-                if (energy < RestEnergyThreshold)
-                    SetState(NPCState.Resting);
-                break;
-
             case NPCState.Working:
-                energy = Mathf.Max(0f, energy - EnergyDrainPerSecond * Time.deltaTime);
-
-                if (energy < RestEnergyThreshold)
-                {
-                    currentResourceNode = null;
-                    SetState(NPCState.Resting);
-                    break;
-                }
                 if (hunger >= HungerWorkBlock)
                     SetIdle();
                 break;
 
-            case NPCState.Resting:
-                energy = Mathf.Min(100f, energy + EnergyRestorePerSecond * energyRestoreMultiplier * Time.deltaTime);
-
-                if (energy >= ReadyEnergyThreshold)
-                    SetState(NPCState.Idle);
-                break;
-
-            case NPCState.AssignedToBuilding:
-                energy = Mathf.Max(0f, energy - (EnergyDrainPerSecond * 0.5f) * Time.deltaTime);
-                if (energy < RestEnergyThreshold)
-                {
-                    assignedBuildingType = "";
-                    SetState(NPCState.Resting);
-                }
-                break;
-
-            // Moving: hareketi kesme, varışta karar ver (FollowPath sonu)
+            // Idle / Moving / AssignedToBuilding: zaman bazlı geçiş yok (enerji sistemi kaldırıldı)
         }
     }
 
@@ -101,7 +61,7 @@ public class NPC : MonoBehaviour
 
     private void MoveToInternal(Vector2Int targetGrid)
     {
-        if (state == NPCState.Resting || hunger >= HungerWorkBlock)
+        if (hunger >= HungerWorkBlock)
             return;
 
         Vector2Int currentGrid = gridManager.WorldToGrid(transform.position);
@@ -134,9 +94,7 @@ public class NPC : MonoBehaviour
 
         moveCoroutine = null;
 
-        if (energy < RestEnergyThreshold)
-            SetState(NPCState.Resting);
-        else if (hunger >= HungerWorkBlock)
+        if (hunger >= HungerWorkBlock)
             SetState(NPCState.Idle);
         else
             SetState(NPCState.Working);
@@ -183,7 +141,7 @@ public class NPC : MonoBehaviour
 
     public void SetBuildingTarget(Vector2Int buildingGrid, string buildingType)
     {
-        if (state == NPCState.Resting || state == NPCState.Dead) return;
+        if (state == NPCState.Dead) return;
         if (hunger >= HungerWorkBlock) return;
 
         assignedBuildingType = buildingType;
@@ -221,23 +179,7 @@ public class NPC : MonoBehaviour
 
         moveCoroutine = null;
 
-        if (energy < RestEnergyThreshold)
-        {
-            assignedBuildingType = "";
-            SetState(NPCState.Resting);
-        }
-        else
-            state = NPCState.AssignedToBuilding;
-    }
-
-    public void ApplyBarakaBonus()
-    {
-        energyRestoreMultiplier = 2f;
-    }
-
-    public void ResetEnergyBonus()
-    {
-        energyRestoreMultiplier = 1f;
+        state = NPCState.AssignedToBuilding;
     }
 
     private void SetState(NPCState newState)
