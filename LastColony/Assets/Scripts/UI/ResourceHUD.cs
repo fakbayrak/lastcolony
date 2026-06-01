@@ -26,6 +26,7 @@ public class ResourceHUD : MonoBehaviour
     [SerializeField] private Sprite iconLumber;
     [SerializeField] private Sprite iconProcessedStone;
     [SerializeField] private Sprite iconMetal;
+    [SerializeField] private Sprite iconFood;
 
     private List<ResourceSlotUI> slots = new List<ResourceSlotUI>();
 
@@ -49,6 +50,7 @@ public class ResourceHUD : MonoBehaviour
             ("Lumber",         "Kereste — İşlenmiş odun",    new Color(0.85f, 0.55f, 0.2f), iconLumber),
             ("ProcessedStone", "İşlenmiş Taş",               new Color(0.8f,  0.8f,  0.9f), iconProcessedStone),
             ("Metal",          "Metal — İşlenmiş cevher",    new Color(0.5f,  0.8f,  1.0f), iconMetal),
+            ("Food",           "Yiyecek — Koloni erzakı",    new Color(0.9f,  0.7f,  0.2f), iconFood),
         };
 
         foreach (var def in defs)
